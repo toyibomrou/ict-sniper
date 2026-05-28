@@ -61,14 +61,16 @@ function LoginScreen() {
       }
 
       localStorage.setItem('token', data.token)
-      setUser({
+      const userData = {
         id: data.user.id,
         email: data.user.email,
         name: data.user.name,
         isAuthenticated: true,
         activeDevices: data.deviceCount || 1,
         maxDevices: 2,
-      })
+      }
+      localStorage.setItem('ict_user', JSON.stringify(userData))
+      setUser(userData)
     } catch (err) {
       setError('Network error. Please try again.')
     } finally {
@@ -241,6 +243,7 @@ function DashboardHeader() {
               className="text-slate-400 hover:text-white"
               onClick={() => {
                 localStorage.removeItem('token')
+                localStorage.removeItem('ict_user')
                 setUser(null)
               }}
             >
@@ -1569,22 +1572,57 @@ function MainDashboard() {
 
 export default function TradingDashboard() {
   const { user, setUser } = useTradingStore()
+  const [initializing, setInitializing] = useState(true)
 
-  // Auto-login check on mount
+  // Auto-login as demo user on mount
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token && !user) {
-      // Quick demo auto-login for showcase
-      setUser({
-        id: 'demo_user',
-        email: 'trader@ictsniper.com',
-        name: 'Demo Trader',
-        isAuthenticated: true,
-        activeDevices: 1,
-        maxDevices: 2,
-      })
-    }
+    const timer = setTimeout(() => {
+      if (!user?.isAuthenticated) {
+        // Auto-login as demo trader for immediate access
+        const stored = localStorage.getItem('ict_user')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            setUser(parsed)
+          } catch {
+            // Fallback to demo
+          }
+        }
+        if (!localStorage.getItem('ict_user')) {
+          const demoUser = {
+            id: 'demo_user',
+            email: 'trader@ictsniper.com',
+            name: 'Demo Trader',
+            isAuthenticated: true,
+            activeDevices: 1,
+            maxDevices: 2,
+          }
+          localStorage.setItem('ict_user', JSON.stringify(demoUser))
+          setUser(demoUser)
+        }
+      }
+      setInitializing(false)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [user, setUser])
+
+  // Show loading spinner while initializing auth
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse">
+            <Zap className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-slate-400 text-sm">Initializing ICT Sniper...</p>
+        </motion.div>
+      </div>
+    )
+  }
 
   if (!user?.isAuthenticated) {
     return <LoginScreen />
