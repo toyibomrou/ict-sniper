@@ -38,6 +38,19 @@ function LoginScreen() {
   const [error, setError] = useState('')
   const { setUser } = useTradingStore()
 
+  const handleDemoAccess = () => {
+    const demoUser = {
+      id: 'demo_user',
+      email: 'trader@ictsniper.com',
+      name: 'Demo Trader',
+      isAuthenticated: true,
+      activeDevices: 1,
+      maxDevices: 2,
+    }
+    localStorage.setItem('ict_user', JSON.stringify(demoUser))
+    setUser(demoUser)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -46,7 +59,7 @@ function LoginScreen() {
     try {
       const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login'
       const body: any = { email, password }
-      if (isRegister) body.name = name
+      if (isRegister) body.name = name || email.split('@')[0]
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -56,7 +69,12 @@ function LoginScreen() {
 
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Authentication failed')
+        // If login fails, suggest registering
+        if (!isRegister && data.error?.includes('Invalid')) {
+          setError('Account not found. Please register first or use Demo Access.')
+        } else {
+          setError(data.error || 'Authentication failed')
+        }
         return
       }
 
@@ -72,7 +90,7 @@ function LoginScreen() {
       localStorage.setItem('ict_user', JSON.stringify(userData))
       setUser(userData)
     } catch (err) {
-      setError('Network error. Please try again.')
+      setError('Network error. Please try again or use Demo Access.')
     } finally {
       setLoading(false)
     }
@@ -147,10 +165,10 @@ function LoginScreen() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center gap-2 text-red-400 text-sm"
+                  className="flex items-start gap-2 text-red-400 text-sm"
                 >
-                  <AlertTriangle className="w-4 h-4" />
-                  {error}
+                  <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <span>{error}</span>
                 </motion.div>
               )}
 
@@ -160,6 +178,25 @@ function LoginScreen() {
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
               >
                 {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-slate-900 px-2 text-slate-500">or</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDemoAccess}
+                className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                <Zap className="w-4 h-4 mr-2 text-emerald-400" />
+                Quick Demo Access
               </Button>
 
               <div className="text-center">
@@ -1574,31 +1611,22 @@ export default function TradingDashboard() {
   const { user, setUser } = useTradingStore()
   const [initializing, setInitializing] = useState(true)
 
-  // Auto-login as demo user on mount
+  // Restore session from localStorage on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!user?.isAuthenticated) {
-        // Auto-login as demo trader for immediate access
+        // Restore previously saved session
         const stored = localStorage.getItem('ict_user')
         if (stored) {
           try {
             const parsed = JSON.parse(stored)
-            setUser(parsed)
+            if (parsed?.isAuthenticated) {
+              setUser(parsed)
+            }
           } catch {
-            // Fallback to demo
+            // Invalid stored data, clear it
+            localStorage.removeItem('ict_user')
           }
-        }
-        if (!localStorage.getItem('ict_user')) {
-          const demoUser = {
-            id: 'demo_user',
-            email: 'trader@ictsniper.com',
-            name: 'Demo Trader',
-            isAuthenticated: true,
-            activeDevices: 1,
-            maxDevices: 2,
-          }
-          localStorage.setItem('ict_user', JSON.stringify(demoUser))
-          setUser(demoUser)
         }
       }
       setInitializing(false)
