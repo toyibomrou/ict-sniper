@@ -49,6 +49,18 @@ function LoginScreen() {
     }
     localStorage.setItem('ict_user', JSON.stringify(demoUser))
     setUser(demoUser)
+    // Set MT5 as connected with demo data immediately
+    useTradingStore.getState().setMT5({
+      connected: true,
+      accountNumber: 'demo-10000',
+      server: 'ICT-Demo',
+      balance: 10000,
+      equity: 10050.25,
+      leverage: 100,
+      currency: 'USD',
+    })
+    // Navigate to dashboard tab
+    useTradingStore.getState().setActiveTab('dashboard')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -417,8 +429,45 @@ function AccountOverview() {
 // ─── Price Ticker ──────────────────────────────────────────────────────
 
 function PriceTicker() {
-  const { prices } = useTradingStore()
+  const { prices, updatePrice, wsConnected } = useTradingStore()
   const priceList = Array.from(prices.values())
+
+  // Generate simulated demo prices if WS is disconnected and no prices yet
+  useEffect(() => {
+    if (!wsConnected && priceList.length === 0) {
+      const demoPrices = [
+        { symbol: 'EURUSD', bid: 1.08745, ask: 1.08767, spread: 0.00022, timestamp: Date.now() },
+        { symbol: 'GBPUSD', bid: 1.27123, ask: 1.27148, spread: 0.00025, timestamp: Date.now() },
+        { symbol: 'USDJPY', bid: 157.845, ask: 157.867, spread: 0.022, timestamp: Date.now() },
+        { symbol: 'AUDUSD', bid: 0.66543, ask: 0.66567, spread: 0.00024, timestamp: Date.now() },
+        { symbol: 'USDCHF', bid: 0.89123, ask: 0.89147, spread: 0.00024, timestamp: Date.now() },
+        { symbol: 'NZDUSD', bid: 0.61234, ask: 0.61258, spread: 0.00024, timestamp: Date.now() },
+        { symbol: 'USDCAD', bid: 1.36789, ask: 1.36812, spread: 0.00023, timestamp: Date.now() },
+      ]
+      demoPrices.forEach(p => updatePrice(p))
+    }
+  }, [wsConnected, priceList.length, updatePrice])
+
+  // Animate demo prices with small tick changes
+  useEffect(() => {
+    if (!wsConnected && priceList.length > 0) {
+      const interval = setInterval(() => {
+        priceList.forEach(p => {
+          const isJPY = p.symbol.includes('JPY')
+          const pip = isJPY ? 0.01 : 0.0001
+          const change = (Math.random() - 0.5) * pip * 3
+          updatePrice({
+            ...p,
+            bid: p.bid + change,
+            ask: p.ask + change,
+            spread: p.ask + change - (p.bid + change),
+            timestamp: Date.now(),
+          })
+        })
+      }, 2000)
+      return () => clearInterval(interval)
+    }
+  }, [wsConnected, priceList, updatePrice])
 
   if (priceList.length === 0) return null
 
@@ -427,11 +476,14 @@ function PriceTicker() {
       <CardHeader className="pb-2 px-4 pt-3">
         <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
           <Globe className="w-4 h-4 text-emerald-400" /> Live Prices
+          {!wsConnected && (
+            <Badge className="text-[10px] bg-amber-600/30 text-amber-400 border-amber-600/30 ml-1">Simulated</Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2">
         <ScrollArea className="h-16">
-          <div className="flex gap-3 px-2">
+          <div className="flex gap-3 px-2 overflow-x-auto">
             {priceList.map((p) => {
               const spread = p.ask - p.bid
               const isJPY = p.symbol.includes('JPY')
@@ -459,7 +511,46 @@ function PriceTicker() {
 // ─── Open Positions Table ──────────────────────────────────────────────
 
 function PositionsPanel() {
-  const { positions, removePosition, updatePnlStats } = useTradingStore()
+  const { positions, removePosition, updatePnlStats, addPosition, wsConnected } = useTradingStore()
+
+  // Add demo positions if empty
+  useEffect(() => {
+    if (positions.length === 0) {
+      const demoPositions: PositionData[] = [
+        {
+          id: 'pos_demo_1',
+          symbol: 'EURUSD',
+          direction: 'buy',
+          entryPrice: 1.08720,
+          currentPrice: 1.08755,
+          stopLoss: 1.08520,
+          takeProfit: 1.09120,
+          lotSize: 0.05,
+          pnl: 17.50,
+          pnlPips: 3.5,
+          signalType: 'silver_bullet',
+          confidence: 88,
+          openedAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+        {
+          id: 'pos_demo_2',
+          symbol: 'GBPUSD',
+          direction: 'sell',
+          entryPrice: 1.27180,
+          currentPrice: 1.27110,
+          stopLoss: 1.27380,
+          takeProfit: 1.26780,
+          lotSize: 0.03,
+          pnl: 21.00,
+          pnlPips: 7.0,
+          signalType: 'mmm_sell',
+          confidence: 82,
+          openedAt: new Date(Date.now() - 7200000).toISOString(),
+        },
+      ]
+      demoPositions.forEach(p => addPosition(p))
+    }
+  }, [positions.length, addPosition])
 
   const handleClose = (id: string) => {
     const pos = positions.find(p => p.id === id)
@@ -556,7 +647,52 @@ function PositionsPanel() {
 // ─── ICT Signal Feed ───────────────────────────────────────────────────
 
 function SignalFeed() {
-  const { signals } = useTradingStore()
+  const { signals, addSignal, wsConnected } = useTradingStore()
+
+  // Generate simulated ICT signals when WS is disconnected
+  useEffect(() => {
+    if (!wsConnected && signals.length === 0) {
+      const demoSignals = [
+        { id: 'sig_1', type: 'fvg', symbol: 'EURUSD', direction: 'bullish', price: 1.08750, confidence: 78, details: '3-candle gap: 1.08720-1.08755 (3.5 pips)', timestamp: Date.now() - 120000 },
+        { id: 'sig_2', type: 'mss', symbol: 'GBPUSD', direction: 'bearish', price: 1.27100, confidence: 85, details: 'Swing low broken at 1.27150, 8.5 pip displacement', timestamp: Date.now() - 90000 },
+        { id: 'sig_3', type: 'liquidity_sweep', symbol: 'USDJPY', direction: 'buy_side', price: 157.890, confidence: 72, details: 'Buy-side liquidity swept above 157.880, wick ratio 0.82', timestamp: Date.now() - 60000 },
+        { id: 'sig_4', type: 'silver_bullet', symbol: 'EURUSD', direction: 'bullish', price: 1.08740, confidence: 88, details: 'AM Session: Bullish FVG + MSS alignment, entry at 1.08740', timestamp: Date.now() - 30000 },
+        { id: 'sig_5', type: 'mmm_sell', symbol: 'GBPUSD', direction: 'bearish', price: 1.27120, confidence: 82, details: 'Buy-side sweep → Bearish MSS → Bearish FVG sequence complete', timestamp: Date.now() - 15000 },
+      ]
+      demoSignals.forEach(s => addSignal(s))
+    }
+  }, [wsConnected, signals.length, addSignal])
+
+  // Continue generating random signals periodically
+  useEffect(() => {
+    if (!wsConnected) {
+      const interval = setInterval(() => {
+        const types = ['fvg', 'mss', 'liquidity_sweep', 'silver_bullet', 'mmm_buy', 'mmm_sell', 'order_block']
+        const symbols = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD']
+        const directions = ['bullish', 'bearish']
+        const type = types[Math.floor(Math.random() * types.length)]
+        const symbol = symbols[Math.floor(Math.random() * symbols.length)]
+        const direction = directions[Math.floor(Math.random() * directions.length)]
+        const confidence = Math.floor(Math.random() * 30) + 65
+
+        const priceMap: Record<string, number> = { EURUSD: 1.0875, GBPUSD: 1.2712, USDJPY: 157.85, AUDUSD: 0.6655 }
+        const basePrice = priceMap[symbol] || 1.0
+        const isJPY = symbol.includes('JPY')
+        const noise = (Math.random() - 0.5) * (isJPY ? 0.05 : 0.0003)
+
+        addSignal({
+          id: `sig_${Date.now()}`,
+          type,
+          symbol,
+          direction,
+          price: basePrice + noise,
+          confidence,
+          timestamp: Date.now(),
+        })
+      }, 8000)
+      return () => clearInterval(interval)
+    }
+  }, [wsConnected, addSignal])
 
   const getSignalIcon = (type: string) => {
     switch (type) {
@@ -1012,10 +1148,14 @@ function MT5SetupGuide() {
   const [password, setPassword] = useState('')
   const [server, setServer] = useState('')
   const [connecting, setConnecting] = useState(false)
+  const [connectSuccess, setConnectSuccess] = useState(false)
+  const [connectError, setConnectError] = useState('')
   const { setMT5 } = useTradingStore()
+  const { setActiveTab } = useTradingStore()
 
   const handleConnect = async () => {
     setConnecting(true)
+    setConnectError('')
     try {
       const token = localStorage.getItem('token')
       const res = await fetch('/api/mt5/connect', {
@@ -1037,9 +1177,16 @@ function MT5SetupGuide() {
           leverage: data.accountInfo?.leverage || 100,
           currency: data.accountInfo?.currency || 'USD',
         })
+        setConnectSuccess(true)
+        // Auto-navigate to dashboard after 1.5s so user sees the success message
+        setTimeout(() => {
+          setActiveTab('dashboard')
+        }, 1500)
+      } else {
+        setConnectError(data.error || 'Connection failed. Please check your credentials.')
       }
     } catch (err) {
-      console.error('MT5 connection failed')
+      setConnectError('Could not reach MT5 bridge. Make sure the service is running.')
     } finally {
       setConnecting(false)
     }
@@ -1122,13 +1269,38 @@ function MT5SetupGuide() {
               className="bg-slate-800 border-slate-700 text-white text-sm"
             />
           </div>
+
+          {connectSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span className="text-sm text-emerald-400">Connected! Redirecting to dashboard...</span>
+            </motion.div>
+          )}
+
+          {connectError && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
+            >
+              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-400">{connectError}</span>
+            </motion.div>
+          )}
+
           <Button
             onClick={handleConnect}
-            disabled={connecting || !accountNumber || !password || !server}
+            disabled={connecting || connectSuccess || !accountNumber || !password || !server}
             className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
           >
             {connecting ? (
               <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Connecting...</>
+            ) : connectSuccess ? (
+              <><CheckCircle2 className="w-4 h-4 mr-2" />Connected!</>
             ) : (
               <><Wifi className="w-4 h-4 mr-2" />Connect to MT5</>
             )}
