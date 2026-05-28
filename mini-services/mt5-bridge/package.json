@@ -1,0 +1,7 @@
+{
+  "name": "mt5-bridge",
+  "scripts": {
+    "dev": "bun index.ts"
+  },
+  "dependencies": {}
+}

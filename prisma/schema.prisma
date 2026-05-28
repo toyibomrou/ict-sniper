@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User & Authentication ──────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  licenseKey   String?  @unique
+  role         String   @default("user") // user | admin
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  devices       Device[]
+  strategies    StrategyConfig[]
+  trades        Trade[]
+  signalLogs    SignalLog[]
+  mt5Connections MT5Connection[]
+}
+
+// ─── Device Licensing (max 2 per user) ──────────────────────────────
+model Device {
+  id          String   @id @default(cuid())
+  userId      String
+  deviceFp    String   // device fingerprint
+  deviceName  String?  // e.g. "John's MacBook"
+  os          String?  // windows | macos | linux | ios | android
+  lastIp      String?
+  lastActive  DateTime @default(now())
+  isActive    Boolean  @default(true)
+  registeredAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceFp])
+}
+
+// ─── ICT Strategy Configuration ─────────────────────────────────────
+model StrategyConfig {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   @default("ICT Silver Bullet")
+  strategyType String  @default("silver_bullet") // silver_bullet | market_maker_buy | market_maker_sell | hybrid
+
+  // Currency pairs to trade
+  pairs       String   @default("EURUSD,GBPUSD,USDJPY") // comma-separated
+
+  // Timeframe
+  timeframe   String   @default("M5") // M1 | M5 | M15
+
+  // Trading hours (UTC)
+  tradingStartHour Int  @default(10) // Start hour
+  tradingEndHour   Int  @default(17) // End hour
+
+  // Silver Bullet windows (EST)
+  sbWindow1   Boolean  @default(true)  // 10:00-11:00 AM EST
+  sbWindow2   Boolean  @default(true)  // 2:00-3:00 PM EST
+  sbWindow3   Boolean  @default(true)  // 4:00-5:00 PM EST
+
+  // Risk Management
+  maxOpenPositions Int  @default(3)
+  riskPerTrade     Float @default(1.0)  // % of account per trade
+  maxDailyLoss     Float @default(3.0)  // % max daily drawdown
+  maxSpreadPips    Float @default(2.0)  // max spread to allow entry
+
+  // Dynamic SL/TP
+  slType      String   @default("fvg_boundary") // fixed | fvg_boundary | liquidity_sweep | atr
+  slBufferPips Float  @default(2.0)   // buffer beyond SL level
+  tpType      String   @default("opposite_liquidity") // fixed_rr | opposite_liquidity | fvg_fill
+  fixedRR     Float    @default(2.0)   // fixed R:R ratio
+  tpMultiple  Float    @default(1.0)   // partial TP at 1R
+
+  // ICT Detection Sensitivity
+  fvgMinGapPips    Float @default(3.0)   // min FVG gap size
+  mssMinDisplacement Float @default(5.0) // min displacement for MSS
+  liquidityWickMin  Float @default(0.7)  // min wick-to-body ratio for liquidity sweep
+
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades  Trade[]
+  signals SignalLog[]
+}
+
+// ─── Trade / Position ───────────────────────────────────────────────
+model Trade {
+  id          String   @id @default(cuid())
+  userId      String
+  strategyId  String?
+
+  // Trade details
+  symbol      String   // e.g. EURUSD
+  direction   String   // buy | sell
+  lotSize     Float
+  entryPrice  Float
+  currentPrice Float?
+  stopLoss    Float
+  takeProfit  Float
+  slPips      Float
+  tpPips      Float
+
+  // ICT context
+  signalType  String   // silver_bullet | mmm_buy | mmm_sell
+  fvgTop      Float?
+  fvgBottom   Float?
+  liquidityLevel Float?
+  mssDirection String?  // bullish | bearish
+  confidence  Float?    // 0-100 signal confidence
+
+  // Status
+  status      String   @default("open") // open | closed | cancelled
+  pnl         Float    @default(0)
+  pnlPips     Float    @default(0)
+  closePrice  Float?
+  closeReason String?  // tp_hit | sl_hit | manual | trailing_stop
+
+  // Timestamps
+  openedAt    DateTime @default(now())
+  closedAt    DateTime?
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy StrategyConfig? @relation(fields: [strategyId], references: [id])
+}
+
+// ─── Signal Log (ICT detections) ────────────────────────────────────
+model SignalLog {
+  id          String   @id @default(cuid())
+  userId      String
+  strategyId  String?
+
+  symbol      String
+  timeframe   String
+  signalType  String   // fvg | mss | liquidity_sweep | order_block | silver_bullet | mmm_complete
+
+  // Signal data (JSON-like stored as strings for SQLite)
+  direction   String?  // bullish | bearish
+  priceLevel  Float?
+  details     String?  // JSON string with detection specifics
+
+  // Detection quality
+  confidence  Float    @default(0)
+  actedUpon   Boolean  @default(false) // whether a trade was opened
+
+  detectedAt  DateTime @default(now())
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy StrategyConfig? @relation(fields: [strategyId], references: [id])
+}
+
+// ─── MT5 Connection ─────────────────────────────────────────────────
+model MT5Connection {
+  id            String   @id @default(cuid())
+  userId        String
+
+  // MT5 Account
+  accountNumber String
+  password      String
+  server        String   // broker server name
+
+  // Connection status
+  status        String   @default("disconnected") // connected | disconnected | error
+  lastConnected DateTime?
+  errorMessage  String?
+
+  // Bridge config
+  bridgeHost    String   @default("localhost")
+  bridgePort    Int      @default(5555)
+
+  // Terminal info
+  terminalPath  String?  // path to MT5 terminal executable
+  terminalBuild String?
+
+  // Account info
+  balance       Float?
+  equity        Float?
+  leverage      Int?
+  currency      String?  @default("USD")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
