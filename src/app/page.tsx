@@ -9,7 +9,9 @@ import {
   Play, Square, BarChart3, Signal, MonitorSmartphone, BookOpen,
   DollarSign, Target, Clock, ChevronRight, Zap, AlertTriangle,
   CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
-  LogOut, User, Key, Cpu, Globe, Layers, Eye
+  LogOut, User, Key, Cpu, Globe, Layers, Eye,
+  Smartphone, Laptop, HelpCircle, Download, Info, ExternalLink,
+  Terminal, ShieldAlert, Flame, FileCheck, AlertCircle, Wrench
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -124,8 +126,12 @@ function LoginScreen() {
           >
             <Zap className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-3xl font-bold text-white">ICT Sniper</h1>
-          <p className="text-slate-400 mt-2">Inner Circle Trader Strategy Bot</p>
+          <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="text-3xl font-bold text-white hover:text-emerald-400 transition-colors inline-flex items-center gap-2">
+            ICT Sniper <ExternalLink className="w-4 h-4 text-slate-500" />
+          </a>
+          <p className="text-slate-400 mt-2">
+            Inner Circle Trader Strategy Bot • <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">ictsniper.com</a>
+          </p>
         </div>
 
         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur">
@@ -248,7 +254,9 @@ function DashboardHeader() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-lg font-bold text-white hidden sm:block">ICT Sniper</h1>
+          <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-white hidden sm:flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+            ICT Sniper <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
           <div className="flex items-center gap-2">
             <Badge
@@ -1141,9 +1149,51 @@ function StrategyConfigPanel() {
   )
 }
 
-// ─── MT5 Setup Guide ───────────────────────────────────────────────────
+// ─── Step Number Component ────────────────────────────────────────────
 
-function MT5SetupGuide() {
+function StepNumber({ n, color = 'emerald' }: { n: number; color?: string }) {
+  return (
+    <span className={`flex-shrink-0 w-6 h-6 rounded-full bg-${color}-600/20 text-${color}-400 flex items-center justify-center text-xs font-bold`}>{n}</span>
+  )
+}
+
+// ─── Security Warning Banner ─────────────────────────────────────────
+
+function SecurityWarning({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20 my-3">
+      <ShieldAlert className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+      <div className="text-sm text-red-300 leading-relaxed">{children}</div>
+    </div>
+  )
+}
+
+// ─── Info Banner ──────────────────────────────────────────────────────
+
+function InfoBanner({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-sky-500/10 border border-sky-500/20 my-3">
+      <Info className="w-5 h-5 text-sky-400 flex-shrink-0 mt-0.5" />
+      <div className="text-sm text-slate-300 leading-relaxed">{children}</div>
+    </div>
+  )
+}
+
+// ─── Tip Banner ───────────────────────────────────────────────────────
+
+function TipBanner({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 my-3">
+      <Flame className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+      <div className="text-sm text-emerald-300 leading-relaxed">{children}</div>
+    </div>
+  )
+}
+
+// ─── Comprehensive Installation & Setup Guide ──────────────────────────
+
+function InstallationGuide() {
+  const [guideTab, setGuideTab] = useState('android')
   const [accountNumber, setAccountNumber] = useState('')
   const [password, setPassword] = useState('')
   const [server, setServer] = useState('')
@@ -1178,7 +1228,6 @@ function MT5SetupGuide() {
           currency: data.accountInfo?.currency || 'USD',
         })
         setConnectSuccess(true)
-        // Auto-navigate to dashboard after 1.5s so user sees the success message
         setTimeout(() => {
           setActiveTab('dashboard')
         }, 1500)
@@ -1186,197 +1235,1138 @@ function MT5SetupGuide() {
         setConnectError(data.error || 'Connection failed. Please check your credentials.')
       }
     } catch (err) {
-      setConnectError('Could not reach MT5 bridge. Make sure the service is running.')
+      setConnectError('Could not reach MT5 bridge. Make sure the service is running on port 3004.')
     } finally {
       setConnecting(false)
     }
   }
 
-  const osSteps = [
-    {
-      os: 'Windows',
-      icon: '🪟',
-      steps: [
-        'Install MetaTrader 5 from your broker or metaquotes.net',
-        'Open MT5 and go to File → Open Data Folder',
-        'Navigate to MQL5/Experts and copy the ICT_Bridge.ex5 EA',
-        'Restart MT5 and attach the EA to any chart',
-        'Enable "Allow DLL imports" in Tools → Options → Expert Advisors',
-        'Enter your MT5 account details below and click Connect',
-      ],
-    },
-    {
-      os: 'macOS',
-      icon: '🍎',
-      steps: [
-        'Install MT5 via PlayOnMac/Wine or use broker web terminal',
-        'Configure Wine to allow network access',
-        'Copy the Python bridge script to your project directory',
-        'Install Python 3.10+ and MetaTrader5 package: pip install MetaTrader5',
-        'Run the bridge: python mt5_bridge.py --port 5555',
-        'Enter your MT5 account details below and click Connect',
-      ],
-    },
-    {
-      os: 'Linux',
-      icon: '🐧',
-      steps: [
-        'Install Wine and Winetricks: sudo apt install wine64',
-        'Download MT5 Windows installer and run via Wine',
-        'Configure Wine prefix for MT5: winecfg',
-        'Install Python bridge: pip3 install MetaTrader5',
-        'Run bridge as systemd service or screen session',
-        'Enter your MT5 account details below and click Connect',
-      ],
-    },
+  const platformTabs = [
+    { id: 'android', label: 'Android', icon: Smartphone },
+    { id: 'ios', label: 'iOS / iPadOS', icon: Smartphone },
+    { id: 'desktop', label: 'Desktop', icon: Laptop },
+    { id: 'mt5bridge', label: 'MT5 Bridge', icon: Cpu },
+    { id: 'troubleshoot', label: 'Troubleshoot', icon: HelpCircle },
   ]
 
   return (
     <div className="space-y-4">
-      {/* Connection Form */}
+      {/* Guide Header */}
       <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader className="pb-3 px-4 pt-3">
-          <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-emerald-400" /> MT5 Connection
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 space-y-3">
-          <div className="space-y-2">
-            <Label className="text-xs text-slate-400">Account Number</Label>
-            <Input
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="12345678"
-              className="bg-slate-800 border-slate-700 text-white text-sm"
-            />
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Installation & Setup Guide</h2>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Follow the step-by-step instructions for your platform to install ICT Sniper and connect it to MetaTrader 5. Select your platform below to get started.
+              </p>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-slate-400">Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-slate-800 border-slate-700 text-white text-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-slate-400">Server</Label>
-            <Input
-              value={server}
-              onChange={(e) => setServer(e.target.value)}
-              placeholder="Broker-Server"
-              className="bg-slate-800 border-slate-700 text-white text-sm"
-            />
-          </div>
-
-          {connectSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
-            >
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span className="text-sm text-emerald-400">Connected! Redirecting to dashboard...</span>
-            </motion.div>
-          )}
-
-          {connectError && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
-            >
-              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-red-400">{connectError}</span>
-            </motion.div>
-          )}
-
-          <Button
-            onClick={handleConnect}
-            disabled={connecting || connectSuccess || !accountNumber || !password || !server}
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
-          >
-            {connecting ? (
-              <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Connecting...</>
-            ) : connectSuccess ? (
-              <><CheckCircle2 className="w-4 h-4 mr-2" />Connected!</>
-            ) : (
-              <><Wifi className="w-4 h-4 mr-2" />Connect to MT5</>
-            )}
-          </Button>
         </CardContent>
       </Card>
 
-      {/* Setup Guide by OS */}
-      <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader className="pb-3 px-4 pt-3">
-          <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-emerald-400" /> Setup Guide by OS
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <Accordion type="single" collapsible className="space-y-2">
-            {osSteps.map((osGuide) => (
-              <AccordionItem key={osGuide.os} value={osGuide.os} className="border-slate-700">
-                <AccordionTrigger className="text-sm text-slate-300 hover:text-white">
-                  <span className="flex items-center gap-2">
-                    <span>{osGuide.icon}</span>
-                    {osGuide.os}
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <ol className="space-y-2 mt-2">
-                    {osGuide.steps.map((step, i) => (
-                      <li key={i} className="flex items-start gap-3 text-xs text-slate-400">
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-[10px] font-medium">
-                          {i + 1}
-                        </span>
+      {/* Platform Selector */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {platformTabs.map((tab) => (
+          <Button
+            key={tab.id}
+            variant={guideTab === tab.id ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setGuideTab(tab.id)}
+            className={`whitespace-nowrap text-xs ${
+              guideTab === tab.id
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                : 'border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <tab.icon className="w-3.5 h-3.5 mr-1.5" />{tab.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* ─── ANDROID SECTION ─────────────────────────────────────────────── */}
+      {guideTab === 'android' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-400" /> Android — APK Installation
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Install ICT Sniper on your Android device using the .apk file
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <StepNumber n={1} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Download the APK</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Visit the official ICT Sniper download page at <a href="https://ictsniper.com/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com/download <ExternalLink className="w-3 h-3" /></a> on your Android device and tap the <strong className="text-slate-300">Download APK</strong> button. The file will be saved to your <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">Downloads</code> folder.
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                      <p><strong className="text-white">What is an APK file?</strong></p>
+                      <p>An <strong>.apk</strong> (Android Package Kit) is the file format Android uses to distribute and install applications. It&apos;s similar to a <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">.exe</code> on Windows or a <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">.dmg</code> on macOS — it contains everything the app needs to run on your device.</p>
+                      <p className="mt-1"><strong className="text-white">Why not on Google Play?</strong></p>
+                      <p>Trading applications that execute real trades are often restricted on Google Play. Distributing via APK allows us to deliver the full-featured version without platform limitations, and to push updates faster.</p>
+                      <p className="mt-1"><strong className="text-white">Choosing the right version:</strong></p>
+                      <p>Most modern Android phones use <strong>arm64-v8a</strong>. If you have an older or budget device, you may need <strong>armeabi-v7a</strong>. Check your device specs if unsure — the wrong version simply won&apos;t install.</p>
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={2} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Enable Unknown Sources</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Android blocks app installations from outside the Play Store by default. You must explicitly allow it:
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-2">
+                      <p><strong className="text-white">Android 8 and above (per-app):</strong></p>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">Settings → Apps → Special app access → Install unknown apps → Find your browser → Enable &quot;Allow from this source&quot;</span>
+                      <p className="mt-1"><strong className="text-white">Android 7 and below (global):</strong></p>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">Settings → Security → Enable &quot;Unknown sources&quot;</span>
+                    </div>
+                    <InfoBanner>
+                      On Android 8+, the permission is <strong>per-app</strong> — you only enable it for the browser you used to download the APK (e.g., Chrome). This is safer than the old global toggle because other apps still can&apos;t install software silently.
+                    </InfoBanner>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={3} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Install the APK</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Open the downloaded <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ict-sniper.apk</code> file — you can find it in your notification shade (tap the &quot;Download complete&quot; notification) or in your file manager under <strong className="text-slate-300">Downloads</strong>.
+                    </p>
+                    <div className="mt-2 space-y-1.5">
+                      {[
+                        { step: 'Tap the APK file', desc: 'Android will show an installation preview screen' },
+                        { step: 'Review the permissions', desc: 'The screen lists what the app will access (Internet, Notifications, etc.)' },
+                        { step: 'Tap Install', desc: 'Wait for the progress bar to complete (usually 5–15 seconds)' },
+                        { step: 'Tap Open', desc: 'Launch the app immediately, or find it later in your app drawer' },
+                      ].map((item) => (
+                        <div key={item.step} className="flex items-start gap-2 p-2 rounded-md bg-slate-800/50">
+                          <ChevronRight className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="text-xs text-white font-medium">{item.step}</span>
+                            <span className="text-xs text-slate-500 ml-1">— {item.desc}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                      If you see a warning like &quot;This type of file can harm your device,&quot; this is Android&apos;s generic warning for all APKs. Tap <strong className="text-slate-300">Install anyway</strong> — this warning appears for every APK, including legitimate ones.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={4} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Configure App Permissions</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      After installation, grant the following permissions when prompted. Each one serves a specific purpose:
+                    </p>
+                    <div className="mt-2 space-y-1.5">
+                      {[
+                        { perm: 'Internet Access', reason: 'Required for real-time price feeds, WebSocket connection, and MT5 bridge communication', required: true },
+                        { perm: 'Notifications', reason: 'Trade execution alerts, signal detections, and strategy status updates', required: true },
+                        { perm: 'Storage', reason: 'Saving strategy configuration, log files, and cached data locally on your device', required: true },
+                        { perm: 'Background Data', reason: 'Keep the strategy running and receiving prices when the app is minimized or the screen is off', required: false },
+                        { perm: 'Battery Optimization Bypass', reason: 'Prevents Android from killing the app to save battery during active trading sessions', required: false },
+                      ].map((item) => (
+                        <div key={item.perm} className="flex items-start gap-2 p-2 rounded-md bg-slate-800/50">
+                          <CheckCircle2 className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${item.required ? 'text-emerald-400' : 'text-amber-400'}`} />
+                          <div>
+                            <span className="text-xs text-white font-medium">{item.perm}</span>
+                            {!item.required && <Badge className="ml-1.5 text-[9px] bg-amber-600/20 text-amber-400 border-amber-600/20">Optional</Badge>}
+                            <p className="text-xs text-slate-500 mt-0.5">{item.reason}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={5} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Launch &amp; Sign In</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Open ICT Sniper from your app drawer or home screen. You&apos;ll see the login screen where you can:
+                    </p>
+                    <div className="mt-2 space-y-1.5">
+                      {[
+                        { option: 'Sign In', desc: 'Enter your registered email and password' },
+                        { option: 'Register', desc: 'Create a new account with email, name, and password' },
+                        { option: 'Quick Demo Access', desc: 'Explore the full dashboard instantly — no account needed' },
+                      ].map((item) => (
+                        <div key={item.option} className="flex items-start gap-2 p-2 rounded-md bg-slate-800/50">
+                          <ChevronRight className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="text-xs text-white font-medium">{item.option}</span>
+                            <span className="text-xs text-slate-500 ml-1">— {item.desc}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+              </ol>
+
+              <SecurityWarning>
+                <strong>Security Notice:</strong> Only download the APK from the official ICT Sniper website at <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com <ExternalLink className="w-3 h-3" /></a>. Never install APKs from unverified third-party sources — they may contain malware that can steal your trading credentials, intercept your MT5 password, or execute unauthorized trades on your account.
+              </SecurityWarning>
+
+              <TipBanner>
+                <strong>Pro Tip:</strong> After installing, go to <strong>Settings → Battery → Unrestricted</strong> for ICT Sniper. This prevents Android from killing the app in the background, ensuring your strategy continues running without interruption. Also, pin the app in your recent apps screen to add extra protection against system cleanup.
+              </TipBanner>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* ─── iOS / iPADOS SECTION ───────────────────────────────────────── */}
+      {guideTab === 'ios' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-400" /> iOS / iPadOS — Installation Guide
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Install ICT Sniper via TestFlight or Enterprise distribution
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <InfoBanner>
+                Apple enforces strict security policies on iOS. Apps distributed outside the App Store require either <strong>TestFlight</strong> (Apple&apos;s official beta-testing platform) or an <strong>Enterprise Certificate</strong> (for internal organizational distribution). Both methods are fully supported and safe when used as directed.
+              </InfoBanner>
+
+              {/* TestFlight Method */}
+              <div className="mt-4 mb-2">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Download className="w-4 h-4 text-emerald-400" /> Method A: TestFlight Installation
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">Recommended — Apple&apos;s official way to install apps outside the App Store</p>
+              </div>
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <StepNumber n={1} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Install TestFlight from the App Store</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Open the <strong className="text-slate-300">App Store</strong> on your iPhone or iPad and search for <strong className="text-slate-300">TestFlight</strong>. Tap Get to download it — it&apos;s free and made by Apple.
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                      <p><strong className="text-white">What is TestFlight?</strong></p>
+                      <p>TestFlight is Apple&apos;s official platform for distributing beta and pre-release apps. It allows you to install apps that aren&apos;t on the App Store yet, with Apple&apos;s oversight. Apps distributed via TestFlight have been reviewed by Apple for basic safety.</p>
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={2} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Accept the Email Invitation</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      You will receive an email from ICT Sniper with a TestFlight invitation link. The process works like this:
+                    </p>
+                    <div className="mt-2 space-y-1.5">
+                      {[
+                        { step: 'Check your email', desc: 'Look for an email from ICT Sniper with subject line containing "TestFlight"' },
+                        { step: 'Tap "View in TestFlight"', desc: 'The email contains a button or link to open the invitation' },
+                        { step: 'TestFlight opens automatically', desc: 'The app launches and shows the ICT Sniper invite card' },
+                        { step: 'Tap "Accept"', desc: 'This adds ICT Sniper to your TestFlight apps list' },
+                      ].map((item) => (
+                        <div key={item.step} className="flex items-start gap-2 p-2 rounded-md bg-slate-800/50">
+                          <ChevronRight className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="text-xs text-white font-medium">{item.step}</span>
+                            <span className="text-xs text-slate-500 ml-1">— {item.desc}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={3} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Install the App</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Tap <strong className="text-slate-300">Install</strong> in TestFlight. The app will download and appear on your home screen with a small <strong className="text-orange-400">orange dot</strong> next to its name, indicating it&apos;s a TestFlight build.
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Future updates will appear as notifications in TestFlight — just tap <strong className="text-slate-300">Update</strong> to install the latest version.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={4} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Trust the Developer Profile (if prompted)</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      On some iOS versions, you may need to manually trust the developer before the app will open:
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                      <p><strong>Step-by-step:</strong></p>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. Open <strong>Settings</strong> → <strong>General</strong> → <strong>VPN &amp; Device Management</strong></span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Under &quot;Developer App&quot;, tap the ICT Sniper profile</span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Tap <strong className="text-emerald-400">Trust &quot;ICT Sniper&quot;</strong></span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">4. Confirm by tapping <strong className="text-emerald-400">Trust</strong> in the popup</span>
+                    </div>
+                    <InfoBanner>
+                      This step only appears once. After trusting the developer, all future builds from ICT Sniper will open without this prompt.
+                    </InfoBanner>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={5} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Launch &amp; Sign In</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Open ICT Sniper from your home screen (look for the orange TestFlight dot). Sign in with your registered account, or tap <strong className="text-slate-300">Quick Demo Access</strong> to explore the dashboard instantly.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+
+              <InfoBanner>
+                TestFlight builds expire after <strong>90 days</strong>. You will receive a push notification and email before expiry with a link to install the updated build. Your settings, strategies, and MT5 connection data are preserved across updates — you won&apos;t need to reconfigure anything.
+              </InfoBanner>
+
+              {/* Enterprise Method */}
+              <div className="mt-6 mb-2">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-amber-400" /> Method B: Enterprise Deployment
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">For organizations distributing apps internally to their members</p>
+              </div>
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <StepNumber n={1} color="amber" />
+                  <div>
+                    <p className="text-sm text-white font-medium">Open the Distribution Link</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Your organization will provide a secure download link (typically via email or internal portal). Open it <strong className="text-slate-300">in Safari</strong> on your iOS device — other browsers may not correctly trigger the installation flow.
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                      <p><strong className="text-white">What is Enterprise Distribution?</strong></p>
+                      <p>Apple&apos;s Developer Enterprise Program allows organizations to sign and distribute apps internally without going through the App Store. The app is signed with a trusted enterprise certificate, which your device must explicitly trust before it will run.</p>
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={2} color="amber" />
+                  <div>
+                    <p className="text-sm text-white font-medium">Download &amp; Install the Enterprise Profile</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      When you tap the download link, iOS will prompt you to install a configuration profile. Follow these steps:
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. Tap <strong className="text-emerald-400">Allow</strong> when Safari asks to download the profile</span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Open <strong>Settings</strong> → you&apos;ll see a new <strong>&quot;Profile Downloaded&quot;</strong> entry near the top</span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Tap it → then tap <strong className="text-emerald-400">Install</strong> in the top-right corner</span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">4. Enter your passcode and tap <strong className="text-emerald-400">Install</strong> again to confirm</span>
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={3} color="amber" />
+                  <div>
+                    <p className="text-sm text-white font-medium">Trust the Enterprise Certificate</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      This is the critical step — your device will not run the app until you trust the enterprise certificate:
+                    </p>
+                    <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. Go to <strong>Settings → General → VPN &amp; Device Management</strong></span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Under &quot;Enterprise App&quot;, tap the organization&apos;s profile</span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Tap <strong className="text-emerald-400">Trust &quot;[Organization Name]&quot;</strong></span>
+                      <span className="block p-2 rounded bg-slate-900/80 text-[11px]">4. Confirm by tapping <strong className="text-emerald-400">Trust</strong></span>
+                    </div>
+                    <InfoBanner>
+                      The trust dialog is Apple&apos;s security mechanism. It ensures you are intentionally allowing software from that organization. Only trust certificates from organizations you recognize and have a relationship with.
+                    </InfoBanner>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={4} color="amber" />
+                  <div>
+                    <p className="text-sm text-white font-medium">Install &amp; Launch the App</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Return to Safari and tap the <strong className="text-slate-300">Install</strong> button on the distribution page. The app will download to your home screen — it will <strong>not</strong> have the orange TestFlight dot. Open it and sign in.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+
+              <SecurityWarning>
+                <strong>Important:</strong> Apple may revoke Enterprise certificates if they detect misuse. If the app suddenly fails to open with a &quot;Developer Certificate Revoked&quot; message, contact your administrator for a new distribution link. Never bypass Apple&apos;s trust dialogs using third-party tools — they bypass iOS security protections and expose your device to malware.
+              </SecurityWarning>
+
+              <TipBanner>
+                <strong>TestFlight vs. Enterprise:</strong> If you have access to both methods, prefer <strong>TestFlight</strong>. It is more stable, does not suffer from certificate revocation, and updates are delivered automatically. Enterprise distribution is best for large organizations that need to distribute to many users simultaneously.
+              </TipBanner>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* ─── DESKTOP SECTION (Windows / macOS / Linux) ──────────────────── */}
+      {guideTab === 'desktop' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Laptop className="w-4 h-4 text-emerald-400" /> Desktop — Windows / macOS / Linux
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Run the desktop executable and configure firewalls for MT5 connectivity
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <Accordion type="multiple" defaultValue={['windows', 'firewall']} className="space-y-2">
+                {/* Windows */}
+                <AccordionItem value="windows" className="border-slate-700">
+                  <AccordionTrigger className="text-sm text-slate-300 hover:text-white">
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🪟</span> Windows Installation
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-2">
+                    <ol className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={1} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Download the Installer</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Visit the official ICT Sniper download page at <a href="https://ictsniper.com/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com/download <ExternalLink className="w-3 h-3" /></a> and click <strong className="text-slate-300">Download for Windows</strong>. Save the <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper-Setup.exe</code> file to your computer.
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                            <p><strong className="text-white">Choosing the right version:</strong></p>
+                            <p>Download the <strong>64-bit</strong> version unless your system is 32-bit (rare on modern PCs). To check: right-click <strong>This PC</strong> → <strong>Properties</strong> → look for &quot;System type.&quot; If it says &quot;x64-based processor,&quot; use 64-bit.</p>
+                            <p className="mt-1"><strong className="text-white">What is an .exe installer?</strong></p>
+                            <p>An <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">.exe</code> (executable) is the standard Windows application format. Our installer includes a setup wizard that installs ICT Sniper to your Program Files folder and creates desktop/start menu shortcuts.</p>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={2} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Run the Installer &amp; Bypass SmartScreen</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Double-click the downloaded <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper-Setup.exe</code> file. Windows may show a blue SmartScreen warning:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <p><strong>SmartScreen warning:</strong> &quot;Windows protected your PC&quot;</p>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. Click <strong className="text-emerald-400">More info</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Verify the publisher shows &quot;ICT Sniper&quot; → Click <strong className="text-emerald-400">Run anyway</strong></span>
+                          </div>
+                          <InfoBanner>
+                            SmartScreen warns about all apps that haven&apos;t built up a reputation with Microsoft yet. This is normal for new or niche applications — it doesn&apos;t mean the app is dangerous. As more users install ICT Sniper, this warning will disappear automatically.
+                          </InfoBanner>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={3} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Install MetaTrader 5</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            If you haven&apos;t already, download and install MT5 from your broker&apos;s website or from{' '}
+                            <span className="text-emerald-400 underline">metaquotes.net</span>. Open it and log in with your broker credentials.
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                            <p><strong className="text-white">Broker-specific vs. MetaQuotes:</strong></p>
+                            <p>Always prefer your <strong>broker&apos;s version</strong> of MT5 — it comes pre-configured with the correct server addresses. The generic MetaQuotes version works too, but you&apos;ll need to manually add your broker&apos;s server.</p>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={4} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Deploy the Bridge EA (Expert Advisor)</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            The ICT Bridge EA is a small plugin that allows ICT Sniper to communicate with MT5:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. In MT5, click <strong>File → Open Data Folder</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Navigate to <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">MQL5/Experts</code></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Copy the <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICT_Bridge.ex5</code> file into this folder</span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">4. Restart MT5 — the EA will appear in the Navigator panel under &quot;Expert Advisors&quot;</span>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={5} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Enable DLL Imports &amp; WebRequest</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            The Bridge EA needs permission to communicate with ICT Sniper:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. In MT5: <strong>Tools → Options → Expert Advisors</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Check <strong className="text-emerald-400">✓ Allow DLL imports</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Check <strong className="text-emerald-400">✓ Allow WebRequest for listed URL</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">4. Add <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">http://localhost:3004</code> to the URL allowlist</span>
+                          </div>
+                          <SecurityWarning>
+                            <strong>Only add <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">localhost</code> URLs to the WebRequest list.</strong> Never add external or unknown URLs — malicious WebRequest targets could allow unauthorized access to your MT5 account.
+                          </SecurityWarning>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={6} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Attach EA &amp; Launch ICT Sniper</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Restart MT5, then drag the <strong className="text-slate-300">ICT_Bridge</strong> EA from the Navigator panel onto any chart. A smiley face 😊 in the top-right corner of the chart means the EA is running. Then launch ICT Sniper on your desktop and connect.
+                          </p>
+                        </div>
+                      </li>
+                    </ol>
+                    <TipBanner>
+                      <strong>Pro Tip:</strong> To ensure the EA starts automatically with MT5, go to <strong>Tools → Options → Expert Advisors</strong> and also check &quot;Allow algo trading.&quot; This way, if your computer restarts, MT5 will auto-start the bridge EA when it reopens.
+                    </TipBanner>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* macOS */}
+                <AccordionItem value="macos" className="border-slate-700">
+                  <AccordionTrigger className="text-sm text-slate-300 hover:text-white">
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🍎</span> macOS Installation
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-2">
+                    <ol className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={1} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Download the DMG File</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Visit the official ICT Sniper download page at <a href="https://ictsniper.com/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com/download <ExternalLink className="w-3 h-3" /></a> from your Mac&apos;s browser (Safari, Chrome, or Firefox). Click the <strong className="text-slate-300">Download for macOS</strong> button. The file is called <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper.dmg</code> and is typically 80–150 MB.
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                            <p><strong className="text-white">What is a DMG file?</strong></p>
+                            <p>A <strong>.dmg</strong> (Disk Image) is Apple&apos;s standard format for distributing macOS applications. Think of it like a virtual USB drive — when you open it, macOS mounts it as if you inserted a disk, and the application inside can be dragged to your Applications folder.</p>
+                            <p className="mt-1"><strong className="text-white">Where does it save?</strong></p>
+                            <p>By default, Safari downloads the DMG to your <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">~/Downloads</code> folder. You can find it by clicking the download arrow in Safari&apos;s toolbar, or by opening Finder → Downloads.</p>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={2} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Open the DMG &amp; Install</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Double-click the downloaded <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper.dmg</code> file. A new Finder window will open showing two items:
+                          </p>
+                          <div className="mt-2 space-y-1.5">
+                            {[
+                              { icon: '📁', item: 'ICT Sniper.app', desc: 'The application itself — drag this to your Applications folder' },
+                              { icon: '📂', item: 'Applications folder shortcut', desc: 'A shortcut link — drag the app here to install' },
+                            ].map((entry) => (
+                              <div key={entry.item} className="flex items-start gap-2 p-2 rounded-md bg-slate-800/50">
+                                <span className="text-sm">{entry.icon}</span>
+                                <div>
+                                  <span className="text-xs text-white font-medium">{entry.item}</span>
+                                  <span className="text-xs text-slate-500 ml-1">— {entry.desc}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Drag the <strong className="text-slate-300">ICT Sniper.app</strong> icon onto the <strong className="text-slate-300">Applications</strong> folder shortcut. macOS will copy the app. Once complete, you can eject the DMG by right-clicking it in Finder&apos;s sidebar and selecting <strong className="text-slate-300">Eject</strong>.
+                          </p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={3} />
+                        <div>
+                          <p className="text-sm text-white font-medium">First Launch — Bypass Gatekeeper</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            On first launch, macOS Gatekeeper may block the app because it was downloaded from the internet (not the App Store). To bypass this:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <p><strong>Option A (Recommended):</strong> Right-click (or Control-click) the app → select <strong className="text-emerald-400">Open</strong> from the context menu → click <strong className="text-emerald-400">Open</strong> again when prompted.</p>
+                            <p><strong>Option B:</strong> Go to <strong>System Settings → Privacy &amp; Security</strong> → scroll down to the security warning about ICT Sniper → click <strong className="text-emerald-400">Open Anyway</strong>.</p>
+                          </div>
+                          <InfoBanner>
+                            You only need to do this once. After the first successful launch, macOS remembers your choice and the app will open normally in the future.
+                          </InfoBanner>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={4} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Install MT5 via CrossOver / PlayOnMac</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            MetaTrader 5 does not have a native macOS version. Use <strong className="text-slate-300">CrossOver</strong> (paid, user-friendly) or <strong className="text-slate-300">PlayOnMac</strong> (free, Wine-based) to run the Windows version. Follow your broker&apos;s macOS setup guide for detailed MT5 installation steps.
+                          </p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={5} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Run the Python Bridge</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Install Python 3.10+ via Homebrew: <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">brew install python</code>, then:{' '}
+                            <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">pip3 install MetaTrader5</code> (runs inside the Wine environment). Start the bridge:{' '}
+                            <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">python3 mt5_bridge.py --port 5555</code>
+                          </p>
+                        </div>
+                      </li>
+                    </ol>
+                    <SecurityWarning>
+                      <strong>Only download the DMG from the official ICT Sniper website at <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com <ExternalLink className="w-3 h-3" /></a>.</strong> Attackers sometimes create fake DMG files that look identical but contain trojan horses. Always verify the URL starts with <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ictsniper.com</code>. If macOS shows a warning that the file &quot;cannot be opened because the developer cannot be verified,&quot; this is expected for apps outside the App Store — but only bypass it if you downloaded the file from the official source.
+                    </SecurityWarning>
+                    <InfoBanner>
+                      Since MT5 on macOS runs through Wine, the Python bridge script must also execute within the same Wine prefix to communicate with MT5. Use: <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">wine python mt5_bridge.py</code>
+                    </InfoBanner>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Linux */}
+                <AccordionItem value="linux" className="border-slate-700">
+                  <AccordionTrigger className="text-sm text-slate-300 hover:text-white">
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🐧</span> Linux Installation
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-2">
+                    <ol className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={1} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Download the AppImage or .deb Package</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Visit the official ICT Sniper download page at <a href="https://ictsniper.com/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ictsniper.com/download <ExternalLink className="w-3 h-3" /></a> and choose your package format:
+                          </p>
+                          <div className="mt-2 space-y-1.5">
+                            {[
+                              { format: 'AppImage', desc: 'Universal — works on all Linux distributions. No installation required, just make it executable and run', cmd: 'chmod +x ICTSniper.AppImage && ./ICTSniper.AppImage' },
+                              { format: '.deb (Debian/Ubuntu)', desc: 'Native package for Debian-based systems. Installs to /opt with desktop integration', cmd: 'sudo dpkg -i ictsniper_amd64.deb' },
+                              { format: '.rpm (Fedora/openSUSE)', desc: 'Native package for RPM-based distributions', cmd: 'sudo rpm -i ictsniper_amd64.rpm' },
+                            ].map((item) => (
+                              <div key={item.format} className="p-2 rounded-md bg-slate-800/50">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-white font-medium">{item.format}</span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                                <code className="block mt-1 px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">{item.cmd}</code>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
+                            <p><strong className="text-white">What is an AppImage?</strong></p>
+                            <p>An AppImage is a self-contained Linux application that runs without installation. Think of it like a portable .exe — it includes all dependencies and runs on any Linux distro. Just download, make executable, and run.</p>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={2} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Install Wine &amp; MT5</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            MetaTrader 5 is a Windows application. On Linux, you need Wine (a Windows compatibility layer) to run it:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <p><strong>Install Wine (Ubuntu/Debian):</strong></p>
+                            <code className="block px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">sudo dpkg --add-architecture i386</code>
+                            <code className="block px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">sudo apt update &amp;&amp; sudo apt install wine64 winetricks</code>
+                            <p className="mt-2"><strong>Install Wine (Fedora):</strong></p>
+                            <code className="block px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">sudo dnf install wine winetricks</code>
+                            <p className="mt-2"><strong>Then install MT5:</strong></p>
+                            <code className="block px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">wine mt5setup.exe</code>
+                          </div>
+                          <InfoBanner>
+                            Wine 7.0+ is recommended for best MT5 compatibility. If you encounter rendering issues, try setting the Windows version to Windows 10 in <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">winecfg</code>.
+                          </InfoBanner>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={3} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Configure the Wine Prefix</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            A Wine prefix is an isolated Windows environment. Create a dedicated one for MT5:
+                          </p>
+                          <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 space-y-2 text-xs text-slate-300">
+                            <code className="block px-2 py-1 rounded bg-slate-900/80 text-emerald-400 text-[10px]">WINEPREFIX=~/.mt5 winecfg</code>
+                            <p className="mt-1">In the configuration window:</p>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">1. Set <strong>Windows version</strong> to <strong className="text-emerald-400">Windows 10</strong></span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">2. Under <strong>Applications</strong> tab, ensure default settings apply</span>
+                            <span className="block p-2 rounded bg-slate-900/80 text-[11px]">3. Under <strong>Libraries</strong> tab, confirm network libraries are enabled</span>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <StepNumber n={4} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Run Python Bridge as a Persistent Service</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                            The Python bridge must stay running in the background for ICT Sniper to communicate with MT5. You have three options:
+                          </p>
+                          <div className="mt-2 space-y-2">
+                            {[
+                              { method: 'Quick (screen session)', desc: 'Runs in a detachable terminal session', cmd: 'screen -S bridge\nWINEPREFIX=~/.mt5 wine python mt5_bridge.py --port 5555\n# Detach: Ctrl+A, D\n# Reattach: screen -r bridge' },
+                              { method: 'Persistent (systemd)', desc: 'Auto-starts on boot, auto-restarts on crash', cmd: 'sudo nano /etc/systemd/system/mt5-bridge.service\n# Then: sudo systemctl enable --now mt5-bridge' },
+                              { method: 'Simple (tmux)', desc: 'Alternative to screen, more features', cmd: 'tmux new -s bridge\nWINEPREFIX=~/.mt5 wine python mt5_bridge.py --port 5555\n# Detach: Ctrl+B, D' },
+                            ].map((item) => (
+                              <div key={item.method} className="p-2.5 rounded-md bg-slate-800/50 border border-slate-700/30">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-white font-medium">{item.method}</span>
+                                  <span className="text-xs text-slate-500">— {item.desc}</span>
+                                </div>
+                                <pre className="mt-1.5 px-2 py-1.5 rounded bg-slate-900/80 text-emerald-400 text-[10px] whitespace-pre-wrap font-mono">{item.cmd}</pre>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </li>
+                    </ol>
+                    <TipBanner>
+                      <strong>Pro Tip:</strong> Use <strong>systemd</strong> to auto-start the MT5 bridge on boot. This ensures your strategy reconnects automatically after system reboots — no manual intervention needed. This is especially important if you&apos;re running on a VPS.
+                    </TipBanner>
+                    <SecurityWarning>
+                      <strong>Keep your Wine prefix isolated.</strong> Only install MT5 and the Python bridge inside the dedicated <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">~/.mt5</code> prefix. Don&apos;t install other Windows software in the same prefix — it could interfere with MT5&apos;s operation or create security vulnerabilities.
+                    </SecurityWarning>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Firewall Configuration */}
+                <AccordionItem value="firewall" className="border-slate-700">
+                  <AccordionTrigger className="text-sm text-slate-300 hover:text-white">
+                    <span className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-amber-400" /> Firewall Configuration
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3 pt-2">
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      ICT Sniper and the MT5 Bridge communicate over local network ports. Your firewall must allow these connections for real-time synchronization.
+                    </p>
+
+                    <div className="p-3 rounded-md bg-slate-800/80 border border-slate-700/50">
+                      <p className="text-xs font-semibold text-white mb-2">Required Ports</p>
+                      <div className="space-y-1.5">
+                        {[
+                          { port: '3003', proto: 'WebSocket', desc: 'Real-time price feed & signal broadcast' },
+                          { port: '3004', proto: 'HTTP REST', desc: 'MT5 Bridge API — trade execution & account data' },
+                          { port: '5555', proto: 'TCP', desc: 'Python Bridge → MT5 Terminal (if using Python bridge)' },
+                        ].map((p) => (
+                          <div key={p.port} className="flex items-center gap-2 text-xs">
+                            <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/20 text-[10px] font-mono">{p.port}</Badge>
+                            <span className="text-slate-400">{p.proto}</span>
+                            <span className="text-slate-500">— {p.desc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 space-y-3">
+                      <div>
+                        <p className="text-xs font-medium text-white mb-1.5">Windows Firewall</p>
+                        <div className="p-2.5 rounded-md bg-slate-800/50 border border-slate-700/50 space-y-1 text-[11px] font-mono text-slate-300">
+                          <p>netsh advfirewall firewall add rule name=&quot;ICT Sniper WS&quot; dir=in action=allow protocol=tcp localport=3003</p>
+                          <p>netsh advfirewall firewall add rule name=&quot;ICT Sniper MT5&quot; dir=in action=allow protocol=tcp localport=3004</p>
+                          <p>netsh advfirewall firewall add rule name=&quot;ICT Sniper Bridge&quot; dir=in action=allow protocol=tcp localport=5555</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-white mb-1.5">Linux (UFW)</p>
+                        <div className="p-2.5 rounded-md bg-slate-800/50 border border-slate-700/50 space-y-1 text-[11px] font-mono text-slate-300">
+                          <p>sudo ufw allow 3003/tcp</p>
+                          <p>sudo ufw allow 3004/tcp</p>
+                          <p>sudo ufw allow 5555/tcp</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-white mb-1.5">macOS Firewall</p>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          Go to <strong className="text-slate-300">System Settings → Network → Firewall → Options</strong>. Add ICT Sniper and the Python bridge to the list of allowed apps. Alternatively, disable the built-in firewall temporarily during setup to verify connectivity.
+                        </p>
+                      </div>
+                    </div>
+
+                    <SecurityWarning>
+                      <strong>Never expose these ports to the public internet.</strong> All communication happens on your local machine (localhost). Only open ports in your firewall for <strong>localhost (127.0.0.1)</strong> connections. If you use a VPS, restrict access with security groups or IP allowlists.
+                    </SecurityWarning>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* ─── MT5 BRIDGE SECTION ──────────────────────────────────────────── */}
+      {guideTab === 'mt5bridge' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          {/* How to Retrieve Credentials */}
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-emerald-400" /> MT5 Bridge — Retrieve Your Credentials
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Find your MT5 account details and connect ICT Sniper for real-time synchronization
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <StepNumber n={1} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Open MetaTrader 5</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Launch the MT5 terminal on your computer. Ensure you are logged in and connected to your broker's server.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={2} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Locate Your Account Number</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      In MT5, go to <strong className="text-slate-300">File → Login to Trade Account</strong> or check the <strong className="text-slate-300">Navigator</strong> panel on the left. Your account number (also called "Login ID") is an 8-digit number like <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">12345678</code>.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={3} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Identify Your Server</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      In the same login dialog, you'll see the server field (e.g., <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">MetaQuotes-Demo</code> or <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">YourBroker-Live3</code>). This must match exactly.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={4} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Enter Your Password</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Use the same password you use to log into MT5. If you forgot it, reset it through your broker's client portal — do not use the "Investor Password" (read-only), you need the <strong className="text-emerald-400">Master/Trading Password</strong>.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <StepNumber n={5} />
+                  <div>
+                    <p className="text-sm text-white font-medium">Input Credentials & Connect</p>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Enter the Account Number, Password, and Server in the connection form below and click <strong className="text-emerald-400">Connect to MT5</strong>.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+
+              <SecurityWarning>
+                <strong>Never share your MT5 password with anyone.</strong> ICT Sniper only sends credentials to your locally running MT5 Bridge (port 3004). We never transmit your password to external servers. If anyone asks for your MT5 credentials, it is a scam — report it immediately.
+              </SecurityWarning>
+
+              <TipBanner>
+                <strong>Demo vs. Live:</strong> Always test with a demo account first. Most brokers offer free demo accounts with virtual funds. Once you've verified the setup works, switch to your live account credentials.
+              </TipBanner>
+            </CardContent>
+          </Card>
+
+          {/* Connection Form */}
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Wifi className="w-4 h-4 text-emerald-400" /> Connect to MT5
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 space-y-3">
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-400">Account Number (Login ID)</Label>
+                <Input
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  placeholder="12345678"
+                  className="bg-slate-800 border-slate-700 text-white text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-400">Master / Trading Password</Label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-slate-800 border-slate-700 text-white text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-400">Server</Label>
+                <Input
+                  value={server}
+                  onChange={(e) => setServer(e.target.value)}
+                  placeholder="Broker-Server3"
+                  className="bg-slate-800 border-slate-700 text-white text-sm"
+                />
+              </div>
+
+              {connectSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span className="text-sm text-emerald-400">Connected! Redirecting to dashboard...</span>
+                </motion.div>
+              )}
+
+              {connectError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
+                >
+                  <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-red-400">{connectError}</span>
+                </motion.div>
+              )}
+
+              <Button
+                onClick={handleConnect}
+                disabled={connecting || connectSuccess || !accountNumber || !password || !server}
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
+              >
+                {connecting ? (
+                  <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Connecting...</>
+                ) : connectSuccess ? (
+                  <><CheckCircle2 className="w-4 h-4 mr-2" />Connected!</>
+                ) : (
+                  <><Wifi className="w-4 h-4 mr-2" />Connect to MT5</>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Architecture Diagram */}
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-emerald-400" /> Connection Architecture
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="space-y-3">
+                {[
+                  { label: 'ICT Sniper Dashboard', sub: 'Next.js Web App (this page)', color: 'emerald' },
+                  { label: 'WebSocket Service', sub: 'Real-time price feed & signals (port 3003)', color: 'teal' },
+                  { label: 'MT5 Bridge API', sub: 'Trade execution & account data (port 3004)', color: 'amber' },
+                  { label: 'Python Bridge Script', sub: 'MetaTrader5 Python SDK → MT5 Terminal', color: 'purple' },
+                  { label: 'MetaTrader 5 Terminal', sub: 'Your broker platform (local machine)', color: 'rose' },
+                ].map((layer, i) => (
+                  <div key={i} className="relative">
+                    <div className={`p-3 rounded-lg border border-${layer.color}-500/30 bg-${layer.color}-500/5`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full bg-${layer.color}-500`} />
+                        <span className="text-sm text-white font-medium">{layer.label}</span>
+                      </div>
+                      <p className="text-xs text-slate-400 ml-4">{layer.sub}</p>
+                    </div>
+                    {i < 4 && (
+                      <div className="flex justify-center py-1">
+                        <ChevronRight className="w-4 h-4 text-slate-600 rotate-90" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* ─── TROUBLESHOOTING SECTION ─────────────────────────────────────── */}
+      {guideTab === 'troubleshoot' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardHeader className="pb-3 px-4 pt-3">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-emerald-400" /> Quick Troubleshooting
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                Common connectivity issues and their solutions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <Accordion type="multiple" defaultValue={[]} className="space-y-2">
+                {[
+                  {
+                    id: 'no-connection',
+                    icon: <WifiOff className="w-4 h-4 text-red-400" />,
+                    title: '"Could not reach MT5 bridge" error',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> The MT5 Bridge service is not running or is unreachable on port 3004.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Verify the MT5 Bridge is running: open a browser and visit <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">http://localhost:3004/health</code></li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Check your firewall isn't blocking port 3004 (see the Firewall Configuration section)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> If using a VPS, ensure the port is accessible and not blocked by security groups</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> Restart the MT5 Bridge service: <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">bun run dev</code> in the mt5-bridge directory</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'auth-failed',
+                    icon: <AlertCircle className="w-4 h-4 text-amber-400" />,
+                    title: '"Invalid credentials" when connecting to MT5',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> Wrong account number, password, or server name.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Double-check your Account Number — it's an 8-digit number, not your email</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Use your <strong className="text-white">Master/Trading password</strong>, not the Investor (read-only) password</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> The server name must match exactly as shown in MT5 (case-sensitive)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> If you copy-pasted the server name, ensure no trailing spaces</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'no-prices',
+                    icon: <Activity className="w-4 h-4 text-purple-400" />,
+                    title: 'Prices not updating / showing stale data',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> WebSocket connection to the price feed is disconnected.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Click the <strong className="text-white">Connect</strong> button in the header to reconnect the WebSocket</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Verify the Trading WebSocket service is running on port 3003</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> Check your internet connection — a brief disconnect can break the WebSocket</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> Refresh the page (F5) — the app will auto-reconnect on load</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'strategy-not-trading',
+                    icon: <Square className="w-4 h-4 text-amber-400" />,
+                    title: 'Strategy is running but not opening trades',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> Strategy may not meet entry conditions, or MT5 is not connected.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Ensure MT5 is <strong className="text-white">connected</strong> (green badge in header)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Check that you're within a Silver Bullet trading window (10AM, 2PM, or 4PM EST)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> Verify your configured pairs have sufficient price data and tight spreads</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> Lower the minimum confidence threshold in Strategy Settings if it's set too high</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">5.</span> Check the Signals tab — if signals are being detected but not traded, the issue is MT5 execution</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'apk-wont-install',
+                    icon: <Smartphone className="w-4 h-4 text-rose-400" />,
+                    title: "APK won't install on Android",
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> Unknown sources disabled, APK corruption, or architecture mismatch.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Enable "Install unknown apps" for your browser (Android 8+) or "Unknown sources" (Android 7-)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Re-download the APK — a corrupted download will fail to install</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> Ensure you downloaded the correct architecture (arm64-v8a for most modern phones, armeabi-v7a for older devices)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> Check available storage — you need at least 100 MB free</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'ios-revoked',
+                    icon: <AlertTriangle className="w-4 h-4 text-rose-400" />,
+                    title: 'iOS app suddenly won\'t open ("Certificate Revoked")',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> Apple has revoked the Enterprise certificate used to sign the app.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Contact your administrator for a new distribution link with a valid certificate</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Switch to the <strong className="text-white">TestFlight</strong> distribution method — it's more stable and doesn't suffer from certificate revocation</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> Do not attempt to bypass the revocation with third-party tools — this is a security risk</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'firewall-block',
+                    icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
+                    title: 'Connection works locally but fails from another device',
+                    content: (
+                      <div className="space-y-2 text-xs text-slate-400 leading-relaxed">
+                        <p><strong className="text-white">Cause:</strong> The firewall on the host machine is blocking inbound connections on the bridge ports.</p>
+                        <p><strong className="text-white">Solutions:</strong></p>
+                        <ol className="space-y-1.5 ml-2">
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">1.</span> Open ports 3003, 3004, and 5555 in your firewall (see Desktop → Firewall Configuration)</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">2.</span> Ensure the MT5 Bridge is bound to <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">0.0.0.0</code> not just <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">127.0.0.1</code></li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">3.</span> If using a VPS, configure security groups to allow inbound TCP on the required ports</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">4.</span> Test with <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">telnet HOST_IP 3004</code> from the remote device</li>
+                        </ol>
+                      </div>
+                    ),
+                  },
+                ].map((item) => (
+                  <AccordionItem key={item.id} value={item.id} className="border-slate-700">
+                    <AccordionTrigger className="text-sm text-slate-300 hover:text-white text-left">
+                      <span className="flex items-center gap-2">
+                        {item.icon}
+                        {item.title}
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2">{item.content}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+
+          {/* Still Need Help */}
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
+                  <Wrench className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Still Having Issues?</h3>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    If none of the solutions above resolve your problem, try these general steps:
+                  </p>
+                  <ol className="mt-2 space-y-1.5">
+                    {[
+                      'Restart all services (MT5 terminal, MT5 Bridge, WebSocket service)',
+                      'Clear your browser cache and refresh the ICT Sniper dashboard',
+                      'Check the service logs for error messages',
+                      'Verify your MT5 account is active and not in read-only mode',
+                      'Contact support with a screenshot of the error and your system info',
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-600/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">{i + 1}</span>
                         <span className="pt-0.5">{step}</span>
                       </li>
                     ))}
                   </ol>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
-
-      {/* Architecture Diagram */}
-      <Card className="bg-slate-900/50 border-slate-800">
-        <CardHeader className="pb-3 px-4 pt-3">
-          <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-400" /> Architecture
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <div className="space-y-3">
-            {[
-              { label: 'ICT Sniper Dashboard', sub: 'Next.js Web App (this page)', color: 'emerald' },
-              { label: 'WebSocket Service', sub: 'Real-time price feed & signals (port 3003)', color: 'teal' },
-              { label: 'MT5 Bridge API', sub: 'Trade execution & account data (port 3004)', color: 'amber' },
-              { label: 'Python Bridge Script', sub: 'MetaTrader5 Python SDK → MT5 Terminal', color: 'purple' },
-              { label: 'MetaTrader 5 Terminal', sub: 'Your broker platform (local machine)', color: 'rose' },
-            ].map((layer, i) => (
-              <div key={i} className="relative">
-                <div className={`p-3 rounded-lg border border-${layer.color}-500/30 bg-${layer.color}-500/5`}>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full bg-${layer.color}-500`} />
-                    <span className="text-sm text-white font-medium">{layer.label}</span>
-                  </div>
-                  <p className="text-xs text-slate-400 ml-4">{layer.sub}</p>
                 </div>
-                {i < 4 && (
-                  <div className="flex justify-center py-1">
-                    <ChevronRight className="w-4 h-4 text-slate-600 rotate-90" />
-                  </div>
-                )}
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </div>
   )
 }
@@ -1683,8 +2673,8 @@ function MainDashboard() {
             <TabsTrigger value="signals" className="text-xs data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
               <Signal className="w-3.5 h-3.5 mr-1.5" />Signals
             </TabsTrigger>
-            <TabsTrigger value="mt5" className="text-xs data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
-              <Cpu className="w-3.5 h-3.5 mr-1.5" />MT5 Setup
+            <TabsTrigger value="setup" className="text-xs data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <BookOpen className="w-3.5 h-3.5 mr-1.5" />Setup
             </TabsTrigger>
             <TabsTrigger value="account" className="text-xs data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
               <Shield className="w-3.5 h-3.5 mr-1.5" />Account
@@ -1711,8 +2701,8 @@ function MainDashboard() {
             <SignalFeed />
           </TabsContent>
 
-          <TabsContent value="mt5" className="space-y-4">
-            <MT5SetupGuide />
+          <TabsContent value="setup" className="space-y-4">
+            <InstallationGuide />
           </TabsContent>
 
           <TabsContent value="account" className="space-y-4">
@@ -1763,8 +2753,11 @@ function MainDashboard() {
       <footer className="mt-auto border-t border-slate-800 bg-slate-950/80 backdrop-blur-xl px-4 py-3">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Zap className="w-3 h-3 text-emerald-400" />
-            <span>ICT Sniper v1.0 • Inner Circle Trader Strategy Bot</span>
+            <a href="https://ictsniper.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+              <Zap className="w-3 h-3 text-emerald-400" />
+              <span>ICT Sniper v1.0 • ictsniper.com</span>
+              <ExternalLink className="w-3 h-3 text-slate-600" />
+            </a>
           </div>
           <div className="flex items-center gap-3 text-xs text-slate-500">
             <span>⚠️ Trading involves risk</span>

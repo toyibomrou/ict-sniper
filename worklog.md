@@ -84,3 +84,29 @@ Stage Summary:
 - Complete frontend with all requested features
 - Professional trading dashboard UI
 - MT5 setup guide for Windows, macOS, and Linux
+
+---
+Task ID: 10
+Agent: Main Orchestrator
+Task: Replace MT5 Setup tab with comprehensive Installation & Setup Guide
+
+Work Log:
+- Replaced the basic MT5SetupGuide component with a comprehensive InstallationGuide component
+- Added 5 sub-tab navigation: Android, iOS/iPadOS, Desktop, MT5 Bridge, Troubleshoot
+- Android section: Step-by-step APK installation with unknown sources enablement, permission management, security warnings
+- iOS/iPadOS section: TestFlight (Method A) and Enterprise deployment (Method B) with Apple security restrictions
+- Desktop section: Windows, macOS, Linux installation with firewall configuration (netsh, UFW, macOS System Settings)
+- MT5 Bridge section: How to retrieve MT5 account credentials (account number, server, password) with connection form
+- Troubleshoot section: 7 common issues with detailed causes and solutions
+- Added reusable UI components: StepNumber, SecurityWarning, InfoBanner, TipBanner
+- Added security warnings throughout: "Never share your MT5 password", "Never expose ports to public internet", "Only download APK from official source"
+- Added pro tips for battery optimization (Android), systemd auto-start (Linux), demo account testing (MT5)
+- Fixed parsing errors with apostrophes in string literals
+- Renamed tab from "MT5 Setup" to "Setup" with BookOpen icon
+- Lint passes clean, page compiles and returns 200
+
+Stage Summary:
+- Comprehensive multi-platform installation guide integrated into Setup tab
+- Covers Android, iOS/iPadOS, Windows, macOS, Linux with numbered steps
+- Security warnings and troubleshooting section included
+- MT5 Bridge credential retrieval instructions with connection form
