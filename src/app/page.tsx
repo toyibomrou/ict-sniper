@@ -2811,7 +2811,7 @@ export default function TradingDashboard() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse">
             <Zap className="w-8 h-8 text-white" />
           </div>
-          <p className="text-slate-400 text-sm">Initializing ICT Sniper...</p>
+          <p className="text-slate-400 text-sm" suppressHydrationWarning>Initializing ICT Sniper...</p>
         </motion.div>
       </div>
     )
