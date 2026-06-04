@@ -43,7 +43,7 @@ function LoginScreen() {
   const handleDemoAccess = () => {
     const demoUser = {
       id: 'demo_user',
-      email: 'trader@ict-sniper.vercel.app',
+      email: 'trader@ict-sniper.app',
       name: 'Demo Trader',
       isAuthenticated: true,
       activeDevices: 1,
@@ -130,7 +130,7 @@ function LoginScreen() {
             ICT Sniper <ExternalLink className="w-4 h-4 text-slate-500" />
           </a>
           <p className="text-slate-400 mt-2">
-            Inner Circle Trader Strategy Bot • <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">ict-sniper.vercel.app</a>
+            Inner Circle Trader Strategy Bot • <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">ict-sniper.app</a>
           </p>
         </div>
 
@@ -1306,7 +1306,7 @@ function InstallationGuide() {
                   <div>
                     <p className="text-sm text-white font-medium">Download the APK</p>
                     <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app/download <ExternalLink className="w-3 h-3" /></a> on your Android device and tap the <strong className="text-slate-300">Download APK</strong> button. The file will be saved to your <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">Downloads</code> folder.
+                      Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app/download <ExternalLink className="w-3 h-3" /></a> on your Android device and tap the <strong className="text-slate-300">Download APK</strong> button. The file will be saved to your <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">Downloads</code> folder.
                     </p>
                     <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
                       <p><strong className="text-white">What is an APK file?</strong></p>
@@ -1418,7 +1418,7 @@ function InstallationGuide() {
               </ol>
 
               <SecurityWarning>
-                <strong>Security Notice:</strong> Only download the APK from the official ICT Sniper website at <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app <ExternalLink className="w-3 h-3" /></a>. Never install APKs from unverified third-party sources — they may contain malware that can steal your trading credentials, intercept your MT5 password, or execute unauthorized trades on your account.
+                <strong>Security Notice:</strong> Only download the APK from the official ICT Sniper website at <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app <ExternalLink className="w-3 h-3" /></a>. Never install APKs from unverified third-party sources — they may contain malware that can steal your trading credentials, intercept your MT5 password, or execute unauthorized trades on your account.
               </SecurityWarning>
 
               <TipBanner>
@@ -1643,7 +1643,7 @@ function InstallationGuide() {
                         <div>
                           <p className="text-sm text-white font-medium">Download the Installer</p>
                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app/download <ExternalLink className="w-3 h-3" /></a> and click <strong className="text-slate-300">Download for Windows</strong>. Save the <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper-Setup.exe</code> file to your computer.
+                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app/download <ExternalLink className="w-3 h-3" /></a> and click <strong className="text-slate-300">Download for Windows</strong>. Save the <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper-Setup.exe</code> file to your computer.
                           </p>
                           <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
                             <p><strong className="text-white">Choosing the right version:</strong></p>
@@ -1747,7 +1747,7 @@ function InstallationGuide() {
                         <div>
                           <p className="text-sm text-white font-medium">Download the DMG File</p>
                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app/download <ExternalLink className="w-3 h-3" /></a> from your Mac&apos;s browser (Safari, Chrome, or Firefox). Click the <strong className="text-slate-300">Download for macOS</strong> button. The file is called <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper.dmg</code> and is typically 80–150 MB.
+                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app/download <ExternalLink className="w-3 h-3" /></a> from your Mac&apos;s browser (Safari, Chrome, or Firefox). Click the <strong className="text-slate-300">Download for macOS</strong> button. The file is called <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ICTSniper.dmg</code> and is typically 80–150 MB.
                           </p>
                           <div className="mt-2 p-3 rounded-md bg-slate-800/80 border border-slate-700/50 text-xs text-slate-300 space-y-1.5">
                             <p><strong className="text-white">What is a DMG file?</strong></p>
@@ -1821,7 +1821,7 @@ function InstallationGuide() {
                       </li>
                     </ol>
                     <SecurityWarning>
-                      <strong>Only download the DMG from the official ICT Sniper website at <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app <ExternalLink className="w-3 h-3" /></a>.</strong> Attackers sometimes create fake DMG files that look identical but contain trojan horses. Always verify the URL starts with <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ict-sniper.vercel.app</code>. If macOS shows a warning that the file &quot;cannot be opened because the developer cannot be verified,&quot; this is expected for apps outside the App Store — but only bypass it if you downloaded the file from the official source.
+                      <strong>Only download the DMG from the official ICT Sniper website at <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app <ExternalLink className="w-3 h-3" /></a>.</strong> Attackers sometimes create fake DMG files that look identical but contain trojan horses. Always verify the URL starts with <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">ict-sniper.app</code>. If macOS shows a warning that the file &quot;cannot be opened because the developer cannot be verified,&quot; this is expected for apps outside the App Store — but only bypass it if you downloaded the file from the official source.
                     </SecurityWarning>
                     <InfoBanner>
                       Since MT5 on macOS runs through Wine, the Python bridge script must also execute within the same Wine prefix to communicate with MT5. Use: <code className="px-1 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px]">wine python mt5_bridge.py</code>
@@ -1843,7 +1843,7 @@ function InstallationGuide() {
                         <div>
                           <p className="text-sm text-white font-medium">Download the AppImage or .deb Package</p>
                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.vercel.app/download <ExternalLink className="w-3 h-3" /></a> and choose your package format:
+                            Visit the official ICT Sniper download page at <a href="https://ict-sniper.vercel.app/download" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 inline-flex items-center gap-0.5">ict-sniper.app/download <ExternalLink className="w-3 h-3" /></a> and choose your package format:
                           </p>
                           <div className="mt-2 space-y-1.5">
                             {[
@@ -2755,7 +2755,7 @@ function MainDashboard() {
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
               <Zap className="w-3 h-3 text-emerald-400" />
-              <span>ICT Sniper v1.0 • ict-sniper.vercel.app</span>
+              <span>ICT Sniper v1.0 • ict-sniper.app</span>
               <ExternalLink className="w-3 h-3 text-slate-600" />
             </a>
           </div>
