@@ -29,7 +29,7 @@ model User {
   mt5Connections MT5Connection[]
 }
 
-// ─── Device Licensing (max 2 per user) ──────────────────────────────
+// ─── Device Licensing (max 3 per user) ──────────────────────────────
 model Device {
   id          String   @id @default(cuid())
   userId      String

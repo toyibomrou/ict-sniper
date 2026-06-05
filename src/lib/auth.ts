@@ -1,6 +1,6 @@
 /**
  * Authentication and device licensing utilities
- * Implements max 2 devices per user account restriction
+ * Implements max 3 devices per user account restriction
  */
 
 import { db } from '@/lib/db'
@@ -36,7 +36,7 @@ export function generateDeviceFingerprint(
 
 // ─── Device Licensing ───────────────────────────────────────────────
 
-const MAX_DEVICES_PER_USER = 2
+const MAX_DEVICES_PER_USER = 3
 
 export async function registerDevice(
   userId: string,

@@ -47,7 +47,7 @@ function LoginScreen() {
       name: 'Demo Trader',
       isAuthenticated: true,
       activeDevices: 1,
-      maxDevices: 2,
+      maxDevices: 3,
     }
     localStorage.setItem('ict_user', JSON.stringify(demoUser))
     setUser(demoUser)
@@ -99,7 +99,7 @@ function LoginScreen() {
         name: data.user.name,
         isAuthenticated: true,
         activeDevices: data.deviceCount || 1,
-        maxDevices: 2,
+        maxDevices: 3,
       }
       localStorage.setItem('ict_user', JSON.stringify(userData))
       setUser(userData)
@@ -231,7 +231,7 @@ function LoginScreen() {
             <div className="mt-6 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <Shield className="w-4 h-4 text-emerald-400" />
-                <span>Max 2 devices per license • 256-bit encryption</span>
+                <span>Max 3 devices per license • 256-bit encryption</span>
               </div>
             </div>
           </CardContent>
@@ -2425,7 +2425,7 @@ function DeviceManagement() {
             <MonitorSmartphone className="w-4 h-4 text-emerald-400" /> Device Management
           </CardTitle>
           <Badge className="text-xs bg-emerald-600/30 text-emerald-400 border-emerald-600/30">
-            {activeDevices}/2 slots used
+            {activeDevices}/3 slots used
           </Badge>
         </div>
       </CardHeader>
@@ -2433,9 +2433,9 @@ function DeviceManagement() {
         <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-slate-400">Device Slots</span>
-            <span className="text-xs text-emerald-400">{activeDevices} of 2</span>
+            <span className="text-xs text-emerald-400">{activeDevices} of 3</span>
           </div>
-          <Progress value={(activeDevices / 2) * 100} className="h-2" />
+          <Progress value={(activeDevices / 3) * 100} className="h-2" />
         </div>
 
         {devices.length === 0 ? (
@@ -2497,7 +2497,7 @@ function DeviceManagement() {
             <div>
               <p className="text-xs font-medium text-amber-400">License Restriction</p>
               <p className="text-xs text-slate-400 mt-1">
-                Each license allows a maximum of 2 simultaneous devices. Remove a device to free up a slot.
+                Each license allows a maximum of 3 simultaneous devices. Remove a device to free up a slot.
               </p>
             </div>
           </div>
