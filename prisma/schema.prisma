@@ -23,10 +23,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  devices       Device[]
-  strategies    StrategyConfig[]
-  trades        Trade[]
-  signalLogs    SignalLog[]
+  devices        Device[]
+  sessions       Session[]
+  passwordResets PasswordReset[]
+  strategies     StrategyConfig[]
+  trades         Trade[]
+  signalLogs     SignalLog[]
   mt5Connections MT5Connection[]
 }
 
@@ -159,6 +161,36 @@ model SignalLog {
 
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   strategy StrategyConfig? @relation(fields: [strategyId], references: [id])
+}
+
+// ─── Session (persistent in DB) ─────────────────────────────────────
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  deviceFp  String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// ─── Password Reset ────────────────────────────────────────────────
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([expiresAt])
 }
 
 // ─── MT5 Connection ─────────────────────────────────────────────────

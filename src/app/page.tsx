@@ -11,7 +11,7 @@ import {
   CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
   LogOut, User, Key, Cpu, Globe, Layers, Eye,
   Smartphone, Laptop, HelpCircle, Download, Info, ExternalLink,
-  Terminal, ShieldAlert, Flame, FileCheck, AlertCircle, Wrench
+  Terminal, ShieldAlert, Flame, FileCheck, AlertCircle, Wrench, Mail, ArrowLeft
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 function LoginScreen() {
   const [isRegister, setIsRegister] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetToken, setResetToken] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [resetSuccess, setResetSuccess] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -110,6 +116,62 @@ function LoginScreen() {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setForgotSent(true)
+      } else {
+        setError(data.error || 'Failed to send reset email')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setResetSuccess(true)
+      } else {
+        setError(data.error || 'Failed to reset password')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Check for reset token in URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('reset')
+    if (token) {
+      setResetToken(token)
+      setShowForgotPassword(true)
+    }
+  }, [])
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
       <motion.div
@@ -137,13 +199,127 @@ function LoginScreen() {
         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur">
           <CardHeader>
             <CardTitle className="text-white">
-              {isRegister ? 'Create Account' : 'Welcome Back'}
+              {showForgotPassword ? 'Reset Password' : isRegister ? 'Create Account' : 'Welcome Back'}
             </CardTitle>
             <CardDescription className="text-slate-400">
-              {isRegister ? 'Register for a new license' : 'Sign in to your trading dashboard'}
+              {showForgotPassword
+                ? resetToken
+                  ? 'Enter your new password'
+                  : forgotSent
+                    ? 'Check your email for reset instructions'
+                    : 'Enter your email to receive a reset link'
+                : isRegister
+                  ? 'Register for a new license'
+                  : 'Sign in to your trading dashboard'}
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Forgot Password Form */}
+            {showForgotPassword ? (
+              <form onSubmit={resetToken ? handleResetPassword : handleForgotPassword} className="space-y-4">
+                {resetSuccess ? (
+                  <div className="text-center space-y-4">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <p className="text-emerald-400 text-sm">Password reset successfully!</p>
+                    <p className="text-slate-400 text-xs">You can now sign in with your new password.</p>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(false)
+                        setResetToken('')
+                        setResetSuccess(false)
+                        setForgotSent(false)
+                      }}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
+                    >
+                      Back to Sign In
+                    </Button>
+                  </div>
+                ) : resetToken ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">New Password</Label>
+                      <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="bg-slate-800 border-slate-700 text-white"
+                        required
+                        minLength={6}
+                      />
+                      <p className="text-xs text-slate-500">Minimum 6 characters</p>
+                    </div>
+
+                    {error && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2 text-red-400 text-sm">
+                        <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
+                    >
+                      {loading ? 'Please wait...' : 'Reset Password'}
+                    </Button>
+                  </>
+                ) : forgotSent ? (
+                  <div className="text-center space-y-4">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <Mail className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <p className="text-emerald-400 text-sm">Reset link sent!</p>
+                    <p className="text-slate-400 text-xs">
+                      If an account exists with this email, you will receive reset instructions.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => { setShowForgotPassword(false); setForgotSent(false) }}
+                      className="w-full border-slate-700 text-slate-300 hover:bg-slate-800"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back to Sign In
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">Email</Label>
+                      <Input
+                        type="email"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        placeholder="trader@example.com"
+                        className="bg-slate-800 border-slate-700 text-white"
+                        required
+                      />
+                    </div>
+
+                    {error && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2 text-red-400 text-sm">
+                        <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white"
+                    >
+                      {loading ? 'Please wait...' : 'Send Reset Link'}
+                    </Button>
+                  </>
+                )}
+              </form>
+            ) : (
+            /* Login / Register Form */
             <form onSubmit={handleSubmit} className="space-y-4">
               {isRegister && (
                 <div className="space-y-2">
@@ -217,7 +393,7 @@ function LoginScreen() {
                 Quick Demo Access
               </Button>
 
-              <div className="text-center">
+              <div className="text-center space-y-2">
                 <button
                   type="button"
                   onClick={() => { setIsRegister(!isRegister); setError('') }}
@@ -225,8 +401,18 @@ function LoginScreen() {
                 >
                   {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
                 </button>
+                {!isRegister && (
+                  <button
+                    type="button"
+                    onClick={() => { setShowForgotPassword(true); setError('') }}
+                    className="block mx-auto text-xs text-slate-500 hover:text-slate-400 transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                )}
               </div>
             </form>
+            )}
 
             <div className="mt-6 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
               <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -249,7 +435,7 @@ function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 md:px-6 h-14">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 md:px-6 py-2 sm:h-14">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
@@ -289,10 +475,10 @@ function DashboardHeader() {
             {wsConnected ? 'Disconnect' : 'Connect'}
           </Button>
 
-          <div className="flex items-center gap-2 ml-2">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs text-slate-400">{user?.name || 'Trader'}</p>
-              <p className="text-xs text-slate-500">{user?.email}</p>
+          <div className="flex items-center gap-2 ml-2 min-w-0">
+            <div className="text-right hidden sm:block min-w-0">
+              <p className="text-xs text-slate-400 truncate">{user?.name || 'Trader'}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
             </div>
             <Button
               size="sm"
@@ -362,7 +548,7 @@ function AccountOverview() {
   ]
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
@@ -378,7 +564,7 @@ function AccountOverview() {
                   <stat.icon className={`w-4 h-4 ${stat.color}`} />
                 </div>
               </div>
-              <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className={`text-lg sm:text-xl font-bold ${stat.color} truncate`}>{stat.value}</p>
               {stat.subtitle && (
                 <p className="text-xs text-slate-500 mt-1">{stat.subtitle}</p>
               )}
@@ -394,7 +580,7 @@ function AccountOverview() {
         className="col-span-2 lg:col-span-4"
       >
         <Card className="bg-slate-900/50 border-slate-800">
-          <CardContent className="p-4 flex items-center justify-between">
+          <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isStrategyRunning ? 'bg-emerald-500/20' : 'bg-slate-800'}`}>
                 {isStrategyRunning ? (
@@ -490,8 +676,9 @@ function PriceTicker() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2">
+        <div className="overflow-x-auto -mx-2 px-2 scrollbar-thin">
         <ScrollArea className="h-16">
-          <div className="flex gap-3 px-2 overflow-x-auto">
+          <div className="flex gap-3 px-2">
             {priceList.map((p) => {
               const spread = p.ask - p.bid
               const isJPY = p.symbol.includes('JPY')
@@ -511,6 +698,7 @@ function PriceTicker() {
             })}
           </div>
         </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   )
@@ -2661,9 +2849,9 @@ function MainDashboard() {
     <div className="min-h-screen bg-slate-950 flex flex-col">
       <DashboardHeader />
 
-      <main className="flex-1 p-3 md:p-4 lg:p-6 max-w-[1600px] mx-auto w-full">
+      <main className="flex-1 p-2 sm:p-3 md:p-4 lg:p-6 max-w-[1600px] mx-auto w-full min-w-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="bg-slate-900/50 border border-slate-800 p-1 h-auto flex-wrap">
+          <TabsList className="bg-slate-900/50 border border-slate-800 p-1 h-auto w-full overflow-x-auto flex-nowrap sm:flex-wrap scrollbar-thin">
             <TabsTrigger value="dashboard" className="text-xs data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
               <Activity className="w-3.5 h-3.5 mr-1.5" />Dashboard
             </TabsTrigger>
@@ -2750,8 +2938,8 @@ function MainDashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-slate-800 bg-slate-950/80 backdrop-blur-xl px-4 py-3">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+      <footer className="mt-auto border-t border-slate-800 bg-slate-950/80 backdrop-blur-xl px-4 py-3 pb-[env(safe-area-inset-bottom,12px)]">
+        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
               <Zap className="w-3 h-3 text-emerald-400" />
@@ -2761,8 +2949,8 @@ function MainDashboard() {
           </div>
           <div className="flex items-center gap-3 text-xs text-slate-500">
             <span>⚠️ Trading involves risk</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>Not financial advice</span>
+            <Separator orientation="vertical" className="h-3 hidden sm:block" />
+            <span className="hidden sm:inline">Not financial advice</span>
           </div>
         </div>
       </footer>

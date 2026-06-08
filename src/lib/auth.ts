@@ -1,6 +1,7 @@
 /**
  * Authentication and device licensing utilities
  * Implements max 3 devices per user account restriction
+ * Sessions are now persisted in PostgreSQL via Neon
  */
 
 import { db } from '@/lib/db'
@@ -149,7 +150,7 @@ export async function validateLicenseKey(key: string): Promise<boolean> {
   return !!user?.isActive
 }
 
-// ─── Session Token ──────────────────────────────────────────────────
+// ─── Session Token (now persisted in DB) ────────────────────────────
 
 export function generateSessionToken(): string {
   return crypto.randomBytes(32).toString('hex')
@@ -162,30 +163,151 @@ export interface SessionData {
   expiresAt: number
 }
 
-// Simple in-memory session store (production would use Redis/DB)
-const sessions = new Map<string, SessionData>()
-
-export function createSession(userId: string, email: string, deviceFp: string): string {
+export async function createSession(userId: string, email: string, deviceFp: string): Promise<string> {
   const token = generateSessionToken()
-  sessions.set(token, {
-    userId,
-    email,
-    deviceFp,
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+  // Clean up expired sessions for this user first
+  await db.session.deleteMany({
+    where: {
+      userId,
+      expiresAt: { lt: new Date() },
+    },
   })
+
+  // Create new session in DB
+  await db.session.create({
+    data: {
+      userId,
+      token,
+      deviceFp,
+      expiresAt,
+    },
+  })
+
   return token
 }
 
-export function validateSession(token: string): SessionData | null {
-  const session = sessions.get(token)
+export async function validateSession(token: string): Promise<SessionData | null> {
+  const session = await db.session.findUnique({
+    where: { token },
+    include: { user: true },
+  })
+
   if (!session) return null
-  if (Date.now() > session.expiresAt) {
-    sessions.delete(token)
+
+  // Check expiration
+  if (new Date() > session.expiresAt) {
+    await db.session.delete({ where: { id: session.id } })
     return null
   }
-  return session
+
+  return {
+    userId: session.userId,
+    email: session.user.email,
+    deviceFp: session.deviceFp || '',
+    expiresAt: session.expiresAt.getTime(),
+  }
 }
 
-export function destroySession(token: string): void {
-  sessions.delete(token)
+export async function destroySession(token: string): Promise<void> {
+  try {
+    await db.session.delete({ where: { token } })
+  } catch {
+    // Session may already be deleted
+  }
+}
+
+// ─── Password Reset ─────────────────────────────────────────────────
+
+export function generateResetToken(): string {
+  return crypto.randomBytes(32).toString('hex')
+}
+
+export async function createPasswordReset(userId: string): Promise<string> {
+  const token = generateResetToken()
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+  // Invalidate any existing reset tokens for this user
+  await db.passwordReset.updateMany({
+    where: { userId, used: false },
+    data: { used: true },
+  })
+
+  // Create new reset token
+  await db.passwordReset.create({
+    data: {
+      userId,
+      token,
+      expiresAt,
+    },
+  })
+
+  return token
+}
+
+export async function validateResetToken(token: string): Promise<string | null> {
+  const reset = await db.passwordReset.findUnique({
+    where: { token },
+  })
+
+  if (!reset || reset.used) return null
+  if (new Date() > reset.expiresAt) return null
+
+  return reset.userId
+}
+
+export async function markResetTokenUsed(token: string): Promise<boolean> {
+  try {
+    await db.passwordReset.update({
+      where: { token },
+      data: { used: true },
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+// ─── Signal Cleanup ─────────────────────────────────────────────────
+
+export async function cleanupOldSignals(olderThanMonths: number = 6): Promise<number> {
+  const cutoffDate = new Date()
+  cutoffDate.setMonth(cutoffDate.getMonth() - olderThanMonths)
+
+  const result = await db.signalLog.deleteMany({
+    where: {
+      detectedAt: { lt: cutoffDate },
+    },
+  })
+
+  return result.count
+}
+
+export async function cleanupOldTrades(olderThanMonths: number = 12): Promise<number> {
+  const cutoffDate = new Date()
+  cutoffDate.setMonth(cutoffDate.getMonth() - olderThanMonths)
+
+  const result = await db.trade.deleteMany({
+    where: {
+      closedAt: { lt: cutoffDate },
+      status: 'closed',
+    },
+  })
+
+  return result.count
+}
+
+export async function cleanupExpiredSessions(): Promise<number> {
+  const result = await db.session.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  })
+  return result.count
+}
+
+export async function cleanupExpiredResetTokens(): Promise<number> {
+  const result = await db.passwordReset.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  })
+  return result.count
 }
