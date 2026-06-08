@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── User & Authentication ──────────────────────────────────────────
@@ -145,7 +146,7 @@ model SignalLog {
   timeframe   String
   signalType  String   // fvg | mss | liquidity_sweep | order_block | silver_bullet | mmm_complete
 
-  // Signal data (JSON-like stored as strings for SQLite)
+  // Signal data
   direction   String?  // bullish | bearish
   priceLevel  Float?
   details     String?  // JSON string with detection specifics
