@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { createSession, verifyPassword, registerDevice, generateDeviceFingerprint } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
@@ -10,6 +9,8 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
+
+    const { db } = await import('@/lib/db')
 
     // Find user in PostgreSQL
     const user = await db.user.findUnique({ where: { email } })
@@ -52,8 +53,18 @@ export async function POST(req: NextRequest) {
       token,
       deviceCount: deviceResult.deviceCount,
     })
-  } catch (error) {
-    console.error('Login error:', error)
+  } catch (error: any) {
+    console.error('Login error:', error?.message || error)
+
+    const errorMessage = error?.message || 'Internal server error'
+
+    if (errorMessage.includes('connect') || errorMessage.includes('ECONNREFUSED') || errorMessage.includes('P1001')) {
+      return NextResponse.json({
+        error: 'Database connection failed. Please try again later.',
+        details: 'DB_CONNECTION_ERROR'
+      }, { status: 503 })
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

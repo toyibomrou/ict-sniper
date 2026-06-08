@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { createSession, registerDevice, generateLicenseKey, generateDeviceFingerprint } from '@/lib/auth'
 import crypto from 'crypto'
 
@@ -19,6 +18,9 @@ export async function POST(req: NextRequest) {
     if (password.length < 6) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
     }
+
+    // Import db dynamically to catch connection errors
+    const { db } = await import('@/lib/db')
 
     // Check if user already exists
     const existing = await db.user.findUnique({ where: { email } })
@@ -64,8 +66,27 @@ export async function POST(req: NextRequest) {
       token,
       deviceCount: deviceResult.deviceCount,
     })
-  } catch (error) {
-    console.error('Registration error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Registration error:', error?.message || error)
+    console.error('Full error:', error?.stack || error)
+
+    // Return more specific error for debugging
+    const errorMessage = error?.message || 'Internal server error'
+
+    if (errorMessage.includes('connect') || errorMessage.includes('ECONNREFUSED') || errorMessage.includes('P1001')) {
+      return NextResponse.json({
+        error: 'Database connection failed. Please try again later.',
+        details: 'DB_CONNECTION_ERROR'
+      }, { status: 503 })
+    }
+
+    if (errorMessage.includes('unique') || errorMessage.includes('P2002')) {
+      return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
+    }
+
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    }, { status: 500 })
   }
 }
