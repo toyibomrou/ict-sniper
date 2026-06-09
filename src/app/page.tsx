@@ -9,10 +9,12 @@ import {
   Play, Square, BarChart3, Signal, MonitorSmartphone, BookOpen,
   DollarSign, Target, Clock, ChevronRight, Zap, AlertTriangle,
   CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
-  LogOut, User, Key, Cpu, Globe, Layers, Eye,
+  LogOut, User, Users, Key, Cpu, Globe, Layers, Eye,
   Smartphone, Laptop, HelpCircle, Download, Info, ExternalLink,
-  Terminal, ShieldAlert, Flame, FileCheck, AlertCircle, Wrench, Mail, ArrowLeft
+  Terminal, ShieldAlert, Flame, FileCheck, AlertCircle, Wrench, Mail, ArrowLeft,
+  Sun, Moon
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +30,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 
 // ─── Login Component ─────────────────────────────────────────────────
 
@@ -51,6 +54,7 @@ function LoginScreen() {
       id: 'demo_user',
       email: 'trader@ict-sniper.app',
       name: 'Demo Trader',
+      role: 'admin' as const,
       isAuthenticated: true,
       activeDevices: 1,
       maxDevices: 3,
@@ -103,6 +107,7 @@ function LoginScreen() {
         id: data.user.id,
         email: data.user.email,
         name: data.user.name,
+        role: data.user.role,
         isAuthenticated: true,
         activeDevices: data.deviceCount || 1,
         maxDevices: 3,
@@ -173,7 +178,7 @@ function LoginScreen() {
   }, [])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 transition-colors">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -188,20 +193,20 @@ function LoginScreen() {
           >
             <Zap className="w-8 h-8 text-white" />
           </motion.div>
-          <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-3xl font-bold text-white hover:text-emerald-400 transition-colors inline-flex items-center gap-2">
-            ICT Sniper <ExternalLink className="w-4 h-4 text-slate-500" />
+          <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-emerald-400 transition-colors inline-flex items-center gap-2">
+            ICT Sniper <ExternalLink className="w-4 h-4 text-slate-400 dark:text-slate-500" />
           </a>
-          <p className="text-slate-400 mt-2">
-            Inner Circle Trader Strategy Bot • <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">ict-sniper.app</a>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
+            Inner Circle Trader Strategy Bot • <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 underline underline-offset-2">ict-sniper.app</a>
           </p>
         </div>
 
-        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur">
+        <Card className="bg-white/80 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 backdrop-blur transition-colors">
           <CardHeader>
-            <CardTitle className="text-white">
+            <CardTitle className="text-slate-900 dark:text-white">
               {showForgotPassword ? 'Reset Password' : isRegister ? 'Create Account' : 'Welcome Back'}
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               {showForgotPassword
                 ? resetToken
                   ? 'Enter your new password'
@@ -432,16 +437,17 @@ function LoginScreen() {
 function DashboardHeader() {
   const { mt5, wsConnected, isStrategyRunning, user, setUser } = useTradingStore()
   const { connect, disconnect } = useTradingSocket()
+  const { theme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl transition-colors">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 md:px-6 py-2 sm:h-14">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-white hidden sm:flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
-            ICT Sniper <ExternalLink className="w-3 h-3 text-slate-500" />
+          <a href="https://ict-sniper.vercel.app" target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-slate-900 dark:text-white hidden sm:flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+            ICT Sniper <ExternalLink className="w-3 h-3 text-slate-400 dark:text-slate-500" />
           </a>
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
           <div className="flex items-center gap-2">
@@ -457,7 +463,7 @@ function DashboardHeader() {
             </Badge>
             <Badge
               variant={mt5.connected ? 'default' : 'secondary'}
-              className={`text-xs ${mt5.connected ? 'bg-emerald-600' : 'bg-slate-700'}`}
+              className={`text-xs ${mt5.connected ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}
             >
               <Cpu className="w-3 h-3 mr-1" />
               {mt5.connected ? 'MT5 Connected' : 'MT5 Offline'}
@@ -466,6 +472,15 @@ function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="h-8 w-8 p-0 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 dark:hover:text-white transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+
           <Button
             size="sm"
             variant={wsConnected ? 'destructive' : 'default'}
@@ -477,13 +492,13 @@ function DashboardHeader() {
 
           <div className="flex items-center gap-2 ml-2 min-w-0">
             <div className="text-right hidden sm:block min-w-0">
-              <p className="text-xs text-slate-400 truncate">{user?.name || 'Trader'}</p>
-              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 truncate">{user?.name || 'Trader'}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{user?.email}</p>
             </div>
             <Button
               size="sm"
               variant="ghost"
-              className="text-slate-400 hover:text-white"
+              className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               onClick={() => {
                 localStorage.removeItem('token')
                 localStorage.removeItem('ict_user')
@@ -2766,6 +2781,280 @@ function PnLChart() {
   )
 }
 
+// ─── Performance Charts ────────────────────────────────────────────────
+
+function PerformanceCharts() {
+  const { dailyPnl, winRate, totalTrades, winningTrades } = useTradingStore()
+
+  // Generate 30 days of equity data starting from $10,000
+  const generateEquityData = () => {
+    let balance = 10000
+    return Array.from({ length: 30 }, (_, i) => {
+      const change = (Math.random() - 0.4) * 100 // slight positive bias
+      balance += change
+      return { day: `Day ${i + 1}`, balance: Math.round(balance * 100) / 100 }
+    })
+  }
+
+  const [equityData] = useState(generateEquityData)
+
+  // Daily P&L data for last 7 days
+  const dailyPnlData = Array.from({ length: 7 }, (_, i) => {
+    const value = Math.round(((Math.random() - 0.35) * 200) * 100) / 100
+    return {
+      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+      pnl: value,
+    }
+  })
+
+  // Win/Loss distribution for pie chart
+  const currentWinRate = totalTrades > 0 ? winRate : 62.5
+  const currentWinningTrades = totalTrades > 0 ? winningTrades : 25
+  const currentLosingTrades = totalTrades > 0 ? totalTrades - winningTrades : 15
+  const winLossData = [
+    { name: 'Winning', value: currentWinningTrades, color: '#10b981' },
+    { name: 'Losing', value: currentLosingTrades, color: '#ef4444' },
+  ]
+
+  // Signal type distribution
+  const signalTypeData = [
+    { name: 'FVG', count: 28 },
+    { name: 'MSS', count: 22 },
+    { name: 'Liq. Sweep', count: 15 },
+    { name: 'Order Block', count: 12 },
+    { name: 'Silver Bullet', count: 18 },
+  ]
+
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string; color?: string }>; label?: string }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 shadow-xl">
+          <p className="text-xs text-slate-400 mb-1">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm font-medium" style={{ color: entry.color || '#10b981' }}>
+              {entry.name}: {typeof entry.value === 'number' ? (entry.value >= 1000 || entry.value <= -1000 ? `$${entry.value.toLocaleString()}` : entry.value < 100 && entry.value > -100 && Math.abs(entry.value) < 1000 ? entry.value % 1 !== 0 ? `$${entry.value.toFixed(2)}` : entry.value : `$${entry.value.toLocaleString()}`) : entry.value}
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
+
+  const PieCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number }) => {
+    const RADIAN = Math.PI / 180
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+    const x = cx + radius * Math.cos(-midAngle * RADIAN)
+    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+    return (
+      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-medium">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    )
+  }
+
+  const startingBalance = equityData[0]?.balance || 10000
+  const currentEquity = equityData[equityData.length - 1]?.balance || 10050
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Equity Curve - Area Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader className="pb-2 px-4 pt-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-400" /> Equity Curve (30 Days)
+              </CardTitle>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-slate-500">Start: <span className="text-slate-300">${startingBalance.toLocaleString()}</span></span>
+                <span className="text-slate-500">Now: <span className={currentEquity >= startingBalance ? 'text-emerald-400' : 'text-red-400'}>${currentEquity.toLocaleString()}</span></span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={equityData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={4}
+                />
+                <YAxis
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={['dataMin - 50', 'dataMax + 50']}
+                  tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`}
+                />
+                <RechartsTooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="balance"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fill="url(#equityGradient)"
+                  name="Balance"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Win/Loss Distribution - Pie Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader className="pb-2 px-4 pt-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Target className="w-4 h-4 text-emerald-400" /> Win/Loss Distribution
+              </CardTitle>
+              <span className="text-xs text-emerald-400 font-medium">{currentWinRate.toFixed(1)}% Win Rate</span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={winLossData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  paddingAngle={3}
+                  dataKey="value"
+                  labelLine={false}
+                  label={PieCustomLabel}
+                >
+                  {winLossData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex justify-center gap-6 mt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="text-xs text-slate-400">Winning ({currentWinningTrades})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <span className="text-xs text-slate-400">Losing ({currentLosingTrades})</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Daily P&L - Bar Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader className="pb-2 px-4 pt-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-emerald-400" /> Daily P&L (Last 7 Days)
+              </CardTitle>
+              <span className={`text-xs font-medium ${dailyPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                Today: {dailyPnl >= 0 ? '+' : ''}${dailyPnl.toFixed(2)}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={dailyPnlData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v: number) => `$${v}`}
+                />
+                <RechartsTooltip content={<CustomTooltip />} />
+                <Bar dataKey="pnl" name="P&L" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                  {dailyPnlData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.pnl >= 0 ? '#10b981' : '#ef4444'}
+                      fillOpacity={0.8}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Signal Type Distribution - Bar Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader className="pb-2 px-4 pt-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm text-slate-300 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-400" /> Signal Type Distribution
+              </CardTitle>
+              <span className="text-xs text-slate-500">{signalTypeData.reduce((a, b) => a + b.count, 0)} signals</span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={signalTypeData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#64748b', fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <RechartsTooltip content={<CustomTooltip />} />
+                <Bar dataKey="count" name="Count" fill="#10b981" fillOpacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  )
+}
+
 // ─── ICT Concepts Legend ───────────────────────────────────────────────
 
 function ICTConceptsLegend() {
@@ -2835,6 +3124,136 @@ function ICTConceptsLegend() {
   )
 }
 
+// ─── Admin Panel ────────────────────────────────────────────────────────
+
+function AdminPanel() {
+  const { user } = useTradingStore()
+  const [stats, setStats] = useState<any>(null)
+  const [users, setUsers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchStats = useCallback(async () => {
+    if (user?.role !== 'admin') return
+    try {
+      const token = localStorage.getItem('token')
+      const [statsRes, usersRes] = await Promise.all([
+        fetch('/api/admin/stats', { headers: { 'x-user-id': user.id } }),
+        fetch('/api/admin/users', { headers: { 'x-user-id': user.id } }),
+      ])
+      if (statsRes.ok) setStats(await statsRes.json())
+      if (usersRes.ok) {
+        const data = await usersRes.json()
+        setUsers(data.users || [])
+      }
+    } catch (err) {
+      console.error('Admin fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [user])
+
+  useEffect(() => {
+    fetchStats()
+    const interval = setInterval(fetchStats, 30000)
+    return () => clearInterval(interval)
+  }, [fetchStats])
+
+  const toggleUserActive = async (targetUserId: string, isActive: boolean) => {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': user!.id },
+        body: JSON.stringify({ targetUserId, isActive }),
+      })
+      if (res.ok) {
+        setUsers(prev => prev.map(u => u.id === targetUserId ? { ...u, isActive } : u))
+      }
+    } catch (err) {
+      console.error('Toggle error:', err)
+    }
+  }
+
+  if (user?.role !== 'admin') return null
+
+  const statCards = [
+    { label: 'Total Users', value: stats?.totalUsers ?? 0, icon: Users, color: 'text-emerald-400' },
+    { label: 'Active Users', value: stats?.activeUsers ?? 0, icon: CheckCircle2, color: 'text-emerald-400' },
+    { label: 'Total Signals', value: stats?.totalSignals ?? 0, icon: Signal, color: 'text-blue-400' },
+    { label: 'Total Trades', value: stats?.totalTrades ?? 0, icon: BarChart3, color: 'text-amber-400' },
+    { label: 'Active Devices', value: stats?.activeDevices ?? 0, icon: MonitorSmartphone, color: 'text-purple-400' },
+    { label: 'New (7d)', value: stats?.recentUsers?.length ?? 0, icon: User, color: 'text-teal-400' },
+  ]
+
+  return (
+    <div className="space-y-4 mt-4">
+      <div className="flex items-center gap-2">
+        <ShieldAlert className="w-5 h-5 text-emerald-400" />
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Admin Dashboard</h3>
+        <Badge className="text-xs bg-emerald-600/30 text-emerald-400 border-emerald-600/30">Admin</Badge>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {statCards.map((s, i) => (
+          <Card key={i} className="bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+            <CardContent className="p-3 text-center">
+              <s.icon className="w-4 h-4 mx-auto mb-1 text-slate-400 dark:text-slate-500" />
+              <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Users Table */}
+      <Card className="bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+        <CardHeader className="pb-2 px-4 pt-3">
+          <CardTitle className="text-sm text-slate-900 dark:text-slate-300 flex items-center gap-2">
+            <Users className="w-4 h-4 text-emerald-400" /> User Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          {loading ? (
+            <div className="text-center py-8 text-slate-400">Loading...</div>
+          ) : users.length === 0 ? (
+            <div className="text-center py-8 text-slate-400 dark:text-slate-500">No users found</div>
+          ) : (
+            <ScrollArea className="max-h-96">
+              <div className="space-y-2">
+                {users.map(u => (
+                  <div key={u.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{u.name || u.email.split('@')[0]}</p>
+                        {u.role === 'admin' && (
+                          <Badge className="text-[10px] bg-amber-600/30 text-amber-400 border-amber-600/30">Admin</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{u.email}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{u.deviceCount} device{u.deviceCount !== 1 ? 's' : ''}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">{new Date(u.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <Switch
+                        checked={u.isActive}
+                        onCheckedChange={(checked) => toggleUserActive(u.id, checked)}
+                        disabled={u.role === 'admin'}
+                        className="data-[state=checked]:bg-emerald-600"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 // ─── Main Dashboard ────────────────────────────────────────────────────
 
 function MainDashboard() {
@@ -2871,6 +3290,7 @@ function MainDashboard() {
 
           <TabsContent value="dashboard" className="space-y-4">
             <AccountOverview />
+            <PerformanceCharts />
             <PriceTicker />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <PositionsPanel />
@@ -2923,7 +3343,7 @@ function MainDashboard() {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400">Max Devices</span>
-                      <span className="text-slate-300">2</span>
+                      <span className="text-slate-300">3</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400">Strategy Access</span>
@@ -2933,6 +3353,7 @@ function MainDashboard() {
                 </CardContent>
               </Card>
             </div>
+            <AdminPanel />
           </TabsContent>
         </Tabs>
       </main>

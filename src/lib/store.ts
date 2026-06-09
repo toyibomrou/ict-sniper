@@ -70,6 +70,7 @@ export interface UserData {
   id: string
   email: string
   name: string
+  role?: string
   isAuthenticated: boolean
   activeDevices: number
   maxDevices: number

@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
     }
 
+    // Check if this is the first user (make them admin)
+    const userCount = await db.user.count()
+    const role = userCount === 0 ? 'admin' : 'user'
+
     // Create user in PostgreSQL
     const licenseKey = generateLicenseKey()
     const user = await db.user.create({
@@ -36,6 +40,7 @@ export async function POST(req: NextRequest) {
         name: name || email.split('@')[0],
         passwordHash: hashPassword(password),
         licenseKey,
+        role,
       },
     })
 
@@ -62,6 +67,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         licenseKey: user.licenseKey,
+        role: user.role,
       },
       token,
       deviceCount: deviceResult.deviceCount,

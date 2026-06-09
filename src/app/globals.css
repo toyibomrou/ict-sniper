@@ -76,6 +76,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* ICT Sniper custom properties - light mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-custom: #e2e8f0;
 }
 
 .dark {
@@ -110,6 +117,13 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* ICT Sniper custom properties - dark mode */
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-card: rgba(15, 23, 42, 0.5);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-custom: #1e293b;
 }
 
 @layer base {
@@ -118,5 +132,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html {
+    transition: color-scheme 0.3s ease;
+  }
+  html.dark {
+    color-scheme: dark;
   }
 }

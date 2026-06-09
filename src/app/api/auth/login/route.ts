@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         licenseKey: user.licenseKey,
+        role: user.role,
       },
       token,
       deviceCount: deviceResult.deviceCount,

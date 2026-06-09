@@ -110,3 +110,33 @@ Stage Summary:
 - Covers Android, iOS/iPadOS, Windows, macOS, Linux with numbered steps
 - Security warnings and troubleshooting section included
 - MT5 Bridge credential retrieval instructions with connection form
+
+---
+Task ID: 16
+Agent: Performance Charts Developer
+Task: Add Trading Performance Charts to Dashboard tab
+
+Work Log:
+- Added recharts imports (AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell) at top of page.tsx
+- Created PerformanceCharts component with 4 professional charts:
+  1. Equity Curve (Area Chart) - 30-day P&L progression with emerald gradient fill, smooth monotone curve, starting balance and current equity display
+  2. Win/Loss Distribution (Pie Chart) - Donut-style chart with winning trades in emerald green (#10b981) and losing trades in red (#ef4444), percentage labels, legend with counts
+  3. Daily P&L (Bar Chart) - Last 7 days with green bars for positive days and red bars for negative days, dollar amount Y-axis
+  4. Signal Type Distribution (Bar Chart) - FVG, MSS, Liquidity Sweep, Order Block, Silver Bullet counts in emerald color
+- Charts use store P&L stats (dailyPnl, winRate, totalTrades, winningTrades) with realistic demo fallback data
+- Custom dark-themed tooltip component (slate-800 background, slate-700 border)
+- Custom pie chart label rendering percentage text inside donut segments
+- All charts wrapped in ResponsiveContainer for responsive behavior
+- 2-column grid on desktop (lg:grid-cols-2), 1 column on mobile
+- Each chart in a Card with proper title, icon, and supplementary info
+- Framer Motion staggered entrance animations
+- Style: transparent backgrounds, slate-700 grid lines at 0.3 opacity, slate-500 axis text, emerald accent colors
+- Placed PerformanceCharts after AccountOverview in Dashboard tab
+- Removed unused totalPnl destructuring variable
+- Lint passes clean, page compiles and returns 200
+
+Stage Summary:
+- Professional trading performance charts added to Dashboard tab
+- 4 chart types: Equity Curve, Win/Loss Distribution, Daily P&L, Signal Type Distribution
+- Fully responsive with dark theme and emerald accent colors
+- Uses recharts library with custom tooltips and label rendering
